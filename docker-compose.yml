@@ -1,0 +1,7 @@
+version: '3'
+services:
+    sim:
+        build: .
+        volumes:
+            - .:/home/khorav/norms
+        command: python -u main.py

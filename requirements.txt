@@ -1,0 +1,7 @@
+numpy
+scipy
+progressbar2
+matplotlib
+numba
+statsmodels
+nkpack
