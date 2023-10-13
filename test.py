@@ -7,19 +7,19 @@ from multiprocessing import Pool
 from time import time,sleep
 
 ########
-P = 50
+P = 4
 N = 4
 K = 3
-C = 2
+C = 4
 S = 3
-T = 100
+T = 200
 RHO = 0.0
 EPS = 0.0
 ETA = 0.0
-NSOC = 4
+NSOC = 2
 DEG = 2
 XI = 1.0 # probability of connecting
-NET = 4 # 0 - random; 1 - line; 2 - cycle; 3 - ring; 4 - star;
+NET = 0 # 0 - random; 1 - line; 2 - cycle; 3 - ring; 4 - star;
 TS = 50
 TM = 20
 W = [0.5,0.5]#,0.0]#phi,desc
@@ -27,11 +27,11 @@ WF = [1.0,0.0]# weights for phi phi_total
 MC = 3
 UBAR = [1.0, 1.0]
 OPT = 1 # 0 - weighted ; 1 - goal ; 2 - schism
-GMAX = False # global max
+LAZY = True
 ########
 
-def single_iteration(p,n,k,c,s,t,rho,eps,eta,ts,tm,nsoc,degree,xi,net,w,wf,ubar,opt,gmax):
-    firm = Organization(p=p,n=n,k=k,c=c,s=s,t=t,rho=rho,eps=eps,eta=eta,ts=ts,tm=tm,nsoc=nsoc,degree=degree,xi=xi,net=net,w=w,wf=wf,ubar=ubar,opt=opt,gmax=gmax)
+def single_iteration(p,n,k,c,s,t,rho,eps,eta,ts,tm,nsoc,degree,xi,net,w,wf,ubar,opt,lazy):
+    firm = Organization(p=p,n=n,k=k,c=c,s=s,t=t,rho=rho,eps=eps,eta=eta,ts=ts,tm=tm,nsoc=nsoc,degree=degree,xi=xi,net=net,w=w,wf=wf,ubar=ubar,opt=opt,lazy=lazy)
     t1 = time()
     firm.define_tasks()
     t2 = time()
@@ -40,7 +40,7 @@ def single_iteration(p,n,k,c,s,t,rho,eps,eta,ts,tm,nsoc,degree,xi,net,w,wf,ubar,
     t4 = time()
     firm.play()
     t5 = time()
-    realization = firm.perf_hist, firm.nature.past_sim
+    realization = firm.perf_hist, np.mean(firm.nature.past_soc,1)
     print(f"define tasks={t2-t1}")
     print(f"firm play={t5-t4}")
     return realization
@@ -49,7 +49,7 @@ quantum = []
 soctum = []
 for mc in range(MC):
     print(mc)
-    single_row, single_soc = single_iteration(p=P,n=N,k=K,c=C,s=S,t=T,rho=RHO,eps=EPS,eta=ETA,ts=TS,tm=TM,nsoc=NSOC,degree=DEG,xi=XI,net=NET,w=W,wf=WF,ubar=UBAR,opt=OPT,gmax=GMAX)
+    single_row, single_soc = single_iteration(p=P,n=N,k=K,c=C,s=S,t=T,rho=RHO,eps=EPS,eta=ETA,ts=TS,tm=TM,nsoc=NSOC,degree=DEG,xi=XI,net=NET,w=W,wf=WF,ubar=UBAR,opt=OPT,lazy=LAZY)
     quantum.append(single_row)
     soctum.append(single_soc)
 

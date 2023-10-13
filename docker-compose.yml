@@ -3,5 +3,5 @@ services:
     sim:
         build: .
         volumes:
-            - .:/home/khorav/norms
+            - .:/home/khorav/sann
         command: python -u main.py

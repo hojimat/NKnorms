@@ -16,12 +16,12 @@ Created by Ravshan S.K.
 I'm on Twitter @ravshansk
 '''
 import numpy as np
-import funcspace as nk
+import nkpack as nk
 from time import time,sleep
 
 class Organization:
     ''' Defines tasks, hires people; aggregation relation with Agent class.'''
-    def __init__(self,p,n,nsoc,k,c,s,degree,xi,net,t,rho,eps,eta,ts,tm,w,wf,ubar,opt,gmax):
+    def __init__(self,p,n,nsoc,k,c,s,degree,xi,net,t,rho,eps,eta,ts,tm,w,wf,ubar,opt,lazy):
         self.p = p # population
         self.n = n # number of tasks per agent
         self.k = k # number of internally coupled bits
@@ -42,13 +42,13 @@ class Organization:
         self.ubar = ubar # goal levels for performance and social norms
         self.opt = opt # optimization techniques; 1: goal prog 2: schism
         self.nature = None # reference to the Nature class
-        self.gmax = gmax # normalize or not by the global maximum; CPU-heavy 
+        self.lazy = lazy # lazy calculation of performances; RAM-efficient, but CPU-heavy
         self.agents = [] # reference to the Agents
         self.perf_hist = np.zeros(t,dtype=float) # performance history storage
     
     def define_tasks(self):
         '''Creates the Nature with given parameters'''
-        nature = Nature(p=self.p,n=self.n,k=self.k,c=self.c,s=self.s,t=self.t,rho=self.rho,nsoc=self.nsoc,gmax=self.gmax)
+        nature = Nature(p=self.p,n=self.n,k=self.k,c=self.c,s=self.s,t=self.t,rho=self.rho,lazy=self.lazy)
         nature.set_interactions()
         nature.set_landscapes() # !!! processing heavy !!!
         self.nature = nature
@@ -80,7 +80,7 @@ class Organization:
         for agent in self.agents:
             agent.initialize()
             agent.report_state()
-            agent.nsoc_added = np.zeros(self.t,dtype=np.int8)
+            agent.nsoc_added = np.zeros(self.t,dtype=int)
             agent.nsoc_added[0] = agent.soc_memory.shape[0]
 
         self.nature.calculate_perf()
@@ -96,7 +96,7 @@ class Organization:
             # at exactly t==TM, the memory fills (training ends) and climbing is done from scratch
             if t==self.tm:
                 for agent in self.agents:
-                    agent.current_state = np.random.choice(2,agent.n*agent.p)
+                    agent.current_state = np.zeros(agent.n*agent.p,dtype=int)
             # every agent performs a climb and reports the state:
             for agent in self.agents:
                 agent.perform_climb(soc=social)
@@ -136,8 +136,8 @@ class Agent:
         self.ubar = employer.ubar
         self.opt = employer.opt
         # current status
-        self.current_state = np.random.choice(2,self.n*self.p)
-        #self.current_betas = np.ones((2**self.n,2),dtype=np.int8)
+        self.current_state = np.zeros(self.n*self.p,dtype=int)
+        self.current_betas = np.ones((2**self.n,2),dtype=int)
         self.phi_soc = 0.0
         self.current_util = 0.0
         self.current_perf = 0.0
@@ -150,7 +150,7 @@ class Agent:
         '''Initializes agent after creation'''
         self.current_perf = self.nature.phi(None, self.current_state)
         self.current_util = self.current_perf
-        #self.current_betas[0,0] += 1
+        self.current_betas[0,0] += 1
 
     def perform_climb(self,lrn=False,soc=False):
         '''The central method. Contains the main decision process of the agent'''
@@ -167,7 +167,7 @@ class Agent:
         my_phi = all_phis.pop(self.id) # get own perf
         other_phis = np.mean(all_phis) # get rest perfs
         phi0 = wf[0] * my_phi + wf[1] * other_phis # calculate earnings
-        #beta0 = self.current_betas[idx0,:] # current beliefs
+        beta0 = self.current_betas[idx0,:] # current beliefs
         soc0 = self.current_soc # current social bits (subset of bit0) 
 
         # get "after" parameters
@@ -175,12 +175,12 @@ class Agent:
         idx1 = nk.get_index(bit1,self.id,self.n) # location of ^
         my_phi, other_phis = self.nature.phi(self.id,bit1,self.eps) # tuple of own perf and mean of others
         phi1 = wf[0] * my_phi + wf[1] * other_phis # calc potential earnings
-        #beta1 = self.current_betas[idx1,:] # calc potential updated beliefs
+        beta1 = self.current_betas[idx1,:] # calc potential updated beliefs
         soc1 = nk.extract_soc(bit1,self.id,self.n,self.nsoc) # potential social bits (subset of bit1)
 
         # calculate mean betas
-        #mbeta0 = nk.beta_mean(*beta0)
-        #mbeta1 = nk.beta_mean(*beta1)
+        mbeta0 = nk.beta_mean(*beta0)
+        mbeta1 = nk.beta_mean(*beta1)
 
         # calculate soc frequency
         fsoc0 = nk.calculate_freq(soc0,self.soc_memory)
@@ -203,7 +203,7 @@ class Agent:
             self.phi_soc = fsoc0
 
         # update beliefs (betas) 
-        #self.current_betas[idx1,int(phi1<phi0)] += 1
+        self.current_betas[idx1,int(phi1<phi0)] += 1
 
     def share_soc(self,tt):
         '''shares social bits with agents in a clique'''
@@ -252,7 +252,7 @@ class Agent:
 
 class Nature:
     '''Defines the performances, inputs state, outputs performance; a hidden class.'''
-    def __init__(self,p,n,k,c,s,t,rho,nsoc,gmax):
+    def __init__(self,p,n,k,c,s,t,rho,lazy):
         self.p = p
         self.n = n
         self.k = k
@@ -260,20 +260,17 @@ class Nature:
         self.s = s
         self.t = t
         self.rho = rho
-        self.nsoc = nsoc
-        self.gmax = gmax
+        self.lazy = lazy
         self.inmat = None
         self.landscape = None
         self.argmax = None
-        self.globalmax = 1.0
-        self.current_state = np.zeros(n*p,dtype=np.int8)
+        self.globalmax = None
+        self.current_state = np.zeros(n*p,dtype=int)
         self.current_perf = np.zeros(p,dtype=float)
         self.current_soc = np.zeros(p,dtype=float)
         self.past_state = []
         self.past_perf = []
         self.past_soc = []
-        self.past_sim = []
-        self.past_simb = []
 
     def set_interactions(self):
         '''sets interaction matrices'''
@@ -282,7 +279,7 @@ class Nature:
         k = self.k
         c = self.c
         s = self.s
-        tmp = np.zeros((n*p, n*p),dtype=np.int8)
+        tmp = np.zeros((n*p, n*p),dtype=int)
         if s>(p-1):
             print("Error: S is too large")
             return
@@ -303,32 +300,41 @@ class Nature:
         self.inmat = tmp
 
     def set_landscapes(self):
-        '''sets landscapes; set gmax=False to skip calculating global maximum'''
+        '''sets landscapes; set lazy=True for memory-efficient but CPU-heavy version'''
         p = self.p
         n = self.n
         k = self.k
         c = self.c
         s = self.s
         rho = self.rho
-        gmax = self.gmax
+        lazy = self.lazy
+        # if lazy just set contrib matrix; else create dictionary
         contrib = nk.contrib_define(p,n,k,c,s,rho)
-        self.landscape = contrib
-        if gmax is True:
+        if lazy is False:
+            tmp1,tmp3 = nk.contrib_full(self.inmat,contrib,n,p) # !!! processing heavy !!!
+            self.landscape = tmp1
+            self.globalmax = tmp3
+        else:
+            self.landscape = contrib
             self.globalmax = nk.get_globalmax(self.inmat,contrib,n,p) # !!! processing heavy !!!
             
     def phi(self,myid,x,eps=0.0):
-        '''inputs bitstring, outputs performance; set gmax=False to skip calculating global maximum'''
+        '''inputs bitstring, outputs performance; set lazy=True for memory-efficient but CPU-heavy version'''
         n = self.n
         p = self.p
         n_p = n*p
         imat = self.inmat
         cmat = self.landscape
         globalmax = self.globalmax
-        gmax = self.gmax
+        lazy = self.lazy
         if len(x) != n_p:
             print("Error: Please enter the full bitstring")
             return
-        tmp = np.array(nk.contrib_solve(x,imat,cmat,n,p)) / globalmax
+        # if lazy calculate phi, else get it from the dictionary
+        if lazy is False:
+            tmp = cmat[nk.dec2bin(x,n_p),:]
+        else:
+            tmp = nk.contrib_solve(x,imat,cmat,n,p) / globalmax
 
         tmp = tmp + np.random.normal(0,eps) # imperfect information
         output = tmp # if no index is given, return all perfs
@@ -349,5 +355,4 @@ class Nature:
     def archive_state(self):
         '''archives state'''
         self.past_state.append(self.current_state.copy())
-        self.past_sim.append(nk.similarity(self.current_state, self.p, self.n, self.nsoc))
-        self.past_simb.append(nk.similarbits(self.current_state, self.p, self.n, self.nsoc))
+        self.past_soc.append(self.current_soc.copy())
