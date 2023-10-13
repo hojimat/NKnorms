@@ -17,4 +17,4 @@ The file `setup.py` contains the system's architecture written in an OOP paradig
 The `set_landscapes` method is the slowest part of the code, as it runs through every possible bitstring and maps it to a performance. At the moment, `jit` is used for its underlying `xcontrib_full` command under _NKPackage_. Also the `main.py` runs a `multiprocessing.Pool` for faster simulations. _CUDA_ is being considered at the moment, but without clear idea how to implement it.
 
 ### Credits
-The code is created by Ravshan S.K. I'm on Twitter [@ravshansk](https://twitter.com/ravshansk). The research is funded by the [D!ARC](https://www.aau.at/digital-age-research-center/decide/) research center. 
+The code is created by Ravshan S.K. I'm on Twitter [@ravshansk](https://twitter.com/ravshansk). The research was done at University of Klagenfurt, Austria between 2019 and 2024 by Ravshanbek Khodzhimatov, Stephan Leitner, and Friederike Wall. 
