@@ -4,4 +4,3 @@ progressbar2
 matplotlib
 numba
 statsmodels
-nkpack

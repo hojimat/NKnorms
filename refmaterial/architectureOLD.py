@@ -6,7 +6,7 @@ The architecture features 3 objects:
 1. Organization: allocates tasks, observes outcomes.
 2. Agent: makes decisions on interdependent tasks,
     interacts with colleagues, shares information in networks.
-3. Nature: a main object that owns agents, does the processing:
+3. Nature: a hidden object that does the processing:
     observes reported states, calculates the performances,
     shares the results.
 
@@ -15,142 +15,48 @@ The code heavily relies on the satelite NKPackage for required utilities.
 Created by Ravshan S.K.
 I'm on Twitter @ravshansk
 '''
-from time import time, sleep
 import numpy as np
-from typing import List
-from numpy.typing import NDArray
 import nkpack as nk
+from time import time,sleep
 
-class Nature:
-    '''Defines the performances, inputs state, outputs performance; a hidden class.'''
+class Organization:
+    ''' Defines tasks, hires people; aggregation relation with Agent class.'''
     def __init__(self, **kwargs):
-        # task environment (user input)
-        self.p = kwargs['p'] # population / number of agents
+        self.p = kwargs['p'] # population
         self.n = kwargs['n'] # number of tasks per agent
         self.k, self.c, self.s = kwargs['kcs'] # number of coupled bits
-        self.rho = kwargs['rho'] # correlation coefficient among individual landscapes
-        self.lazy = kwargs['lazy'] # normalize or not by the global maximum; CPU-heavy 
-        # task environment (generated)
-        self.globalmax : float = 1.0
-        self.interaction_matrix : NDArray[np.int8] = None
-        self.landscape : NDArray[np.float32] = None
-        # social interactions
+        self.t = kwargs['t'] # lifespan of the organization
         self.nsoc = kwargs['nsoc'] # number of social bits
         self.degree = kwargs['deg'] # degree of network of agents (analog and digital)
         self.xi = kwargs['xi'] # probability of connecting through channel
         self.net = kwargs['net'] # network topology
         self.w = kwargs['w'] # weights for performance and social norms
-        self.tm = kwargs['tm'] # memory span of agents
-        # search behavior
         self.wf = kwargs['wf'] # weights for individual vs. collective incentive system
-        # history
-        self.t = kwargs['t'] # lifespan of the organization
-        # players
-        self.organization = None # reference to the Organization
-        self.agents = None # reference to the Agents
-
-    def create_environment(self):
-        """Creates the environment"""
-        self._generate_interaction_matrix()
-        self._generate_landscape()
-        if not self.lazy:
-            self._calculate_global_maximum()
-
-    def create_players(self):
-        '''Spawn main players: 1 organization and P agents'''
-        self.organization = Organization(nature=self)
-        self.agents = [Agent(nature=self) for i in range(self.p)]
-
-    def _phi(self, bstring: NDArray[np.int8]) -> NDArray[np.float32]:
-        '''
-        Calculates individual performances of all agents
-        for a given bitstring.
-
-        Args:
-            bstring: an input bitstring
-
-        Returns:
-            P-sized vector with performances of a bitstring for P agents.
-        '''
-
-        if len(bstring) != self.n * self.p:
-            raise nk.InvalidBitstringError("Please enter the full bitstring.")
-
-        perfs = nk.calculate_performances(bstring, self.interaction_matrix, self.landscape, self.n, self.p)
-        normalized_performances = perfs / self.globalmax
-
-        return normalized_performances
-
-    def _calculate_current_performances(self):
-        '''
-        I THINK I CAN DELETE THIS
-        uses _phi to calculate current performances for all agents'''
-        # get latest state
-        current_state = self.states[-1]
-        tmp = self._phi(current_state)
-        self.current_perf = tmp # append or put to the current state
-        output = tmp
-        self.past_perf.append(output)
-
-    def archive_state(self):
-        '''MOVE THIS FUNCTIONALITY SOMEWHEREarchives state'''
-        self.past_state.append(self.current_state.copy())
-        self.past_sim.append(nk.similarity(self.current_state, self.p, self.n, self.nsoc))
-        self.past_simb.append(nk.similarbits(self.current_state, self.p, self.n, self.nsoc))
-
-
-    def _generate_interaction_matrix(self):
-        '''generates the NKCS interaction matrix'''
-        inmat = np.zeros((self.n * self.p, self.n * self.p), dtype=np.int8)
-        
-        if self.s > (self.p - 1):
-            raise nk.InvalidParameterError("The value of S cannot exceed P-1.")
-
-        # internal coupling
-        # the idea is to randomly draw only once
-        # and have the same internal interaction for
-        # all agents. This allows rho=1 to work.
-        internal = nk.interaction_matrix(self.n, self.k, "random")
-        for i in range(self.p):
-            inmat[i*self.n : (i+1)*self.n, i*self.n : (i+1)*self.n] = internal
-
-        # external coupling
-        external = nk.random_binary_matrix(self.n, self.c)
-        peers_list = nk.generate_couples(self.p, self.s)
-        for i, peers in zip(range(self.p), peers_list):
-            for peer in peers:
-                inmat[i*self.n : (i+1)*self.n, peer*self.n : (peer+1)*self.n] = external
-
-        # save the interaction matrix
-        self.interaction_matrix = inmat
-
-    def _generate_landscape(self):
-        '''generates the landscape given by the interaction matrix.'''
-        self.landscape = nk.generate_landscape(self.p, self.n, self.k, self.c, self.s, self.rho)
-
-    def _calculate_global_maximum(self):
-        '''
-        !!! WARNING: The most processing-heavy part of the project !!!
-
-        Calculates global maximum for normalization. Set lazy=True to skip.
-        '''
-        self.globalmax = nk.get_globalmax(self.interaction_matrix, self.landscape, self.n, self.p)
-
-class Organization:
-    ''' Defines tasks, hires people; aggregation relation with Agent class.'''
-    def __init__(self, nature):
-        # environment and user-input params:
+        self.rho = kwargs['rho'] # correlation coefficient among individual landscapes
+        self.tm = kwargs['tm'] # memory span of agents
+        self.ubar = kwargs['ubar'] # goal levels for performance and social norms
+        self.opt = kwargs['opt'] # optimization techniques; 1: goal prog 2: schism
+        self.nature = None # reference to the Nature class
+        self.gmax = kwargs['gmax'] # normalize or not by the global maximum; CPU-heavy 
+        self.agents = [] # reference to the Agents
+        self.perf_hist = np.zeros(t,dtype=float) # performance history storage
+    
+    def define_tasks(self):
+        '''Creates the Nature with given parameters'''
+        nature = Nature(p=self.p,n=self.n,k=self.k,c=self.c,s=self.s,t=self.t,rho=self.rho,nsoc=self.nsoc,gmax=self.gmax)
+        nature.set_interactions()
+        nature.set_landscapes() # !!! processing heavy !!!
         self.nature = nature
-        self.agents = nature.agents # "hire" all people from environment
-        # histories:
-        self.states = np.empty((nature.t, nature.n*nature.p), dtype=np.int8) # bitstrings history
-        self.performances = np.empty((nature.t, nature.p), dtype=np.float32) # agents' performances 
-        self.synchronies = np.empty(nature.t, dtype=np.float32) # synchrony measures history
 
-    def form_networks(self):
+    def hire_people(self):
+        '''Creates the Agents and stores them'''
+        for i in range(self.p):
+            self.agents.append(Agent(employer=self))
+
+    def form_cliques(self):
         '''Generates the network structure for agents to communicate;
         it can be argued that a firm has the means to do that,
-        e.g. through hiring,communication tools etc.'''
+        e.g. through hiring,communication tools etc.''' 
         p = self.p
         degree = self.degree
         xi = self.xi
@@ -206,20 +112,34 @@ class Organization:
 
 class Agent:
     ''' Decides on tasks, interacts with peers; aggregation relation with Organization class.'''
-    def __init__(self, nature):
+    def __init__(self,employer):
         # adopt variables from the organization; not an inheritance.
-        self.id = len(nature.agents)
-        self.nature = nature
+        self.id = len(employer.agents)
+        self.employer = employer
+        self.nature = employer.nature
+        self.n = employer.n
+        self.p = employer.p
+        self.eps = employer.eps
+        self.eta = employer.eta
+        self.nsoc = employer.nsoc
+        self.degree = employer.degree
+        self.t = employer.t
+        self.ts = employer.ts
+        self.tm = employer.tm
+        self.w = employer.w
+        self.wf = employer.wf
+        self.ubar = employer.ubar
+        self.opt = employer.opt
         # current status
         self.current_state = np.random.choice(2,self.n*self.p)
         #self.current_betas = np.ones((2**self.n,2),dtype=np.int8)
         self.phi_soc = 0.0
         self.current_util = 0.0
         self.current_perf = 0.0
-        self.current_soc = np.repeat(-1, nature.nsoc)
+        self.current_soc = np.repeat(-1,self.nsoc)
         # information about social interactions
-        self.soc_memory = np.repeat(-1, 2*nature.nsoc).reshape(2, nature.nsoc) # social storage matrix
-        self.peers = [] # agents this agent talks with in a network
+        self.soc_memory = np.repeat(-1,2*self.nsoc).reshape(2,self.nsoc) # social storage matrix
+        self.clique = [] # reference to agents in the network
 
     def initialize(self):
         '''Initializes agent after creation'''
@@ -232,6 +152,8 @@ class Agent:
         # get attributes as local variables
         w = self.w.copy()
         wf = self.wf.copy()
+        ubar = self.ubar
+        opt = self.opt
 
         # get "before" parameters
         bit0 = self.current_state.copy() # current bitstring
@@ -260,9 +182,14 @@ class Agent:
         fsoc1 = nk.calculate_freq(soc1,self.soc_memory)
 
         # calculate utility 
-        util0 = w[0] * phi0 + w[1] * fsoc0
-        util1 = w[0] * phi1 + w[1] * fsoc1
-
+        util0 = None
+        util1 = None
+        if opt==1: # goal programming
+            util0 = nk.goal_prog(phi0,fsoc0,ubar,w[0],w[1])
+            util1 = nk.goal_prog(phi1,fsoc1,ubar,w[0],w[1])
+        elif opt==2: # schism optimization
+            util0 = nk.schism(phi0,fsoc0,soc)
+            util1 = nk.schism(phi1,fsoc1,soc)
         # the central decision to climb or stay
         if util1 > util0:
             self.current_state = bit1
@@ -280,7 +207,7 @@ class Agent:
         n = self.n
         p = self.p
         nsoc = self.nsoc
-        clique = self.peers
+        clique = self.clique
         current = self.current_state.copy()
         current_soc = nk.extract_soc(current,idd,n,nsoc)
         noisy_soc = nk.with_noise(current_soc,self.eta)
@@ -318,3 +245,104 @@ class Agent:
         self.nature.current_state[i*n:(i+1)*n] = self.current_state[i*n:(i+1)*n].copy()
         self.nature.current_soc[i] = self.phi_soc
 
+class Nature:
+    '''Defines the performances, inputs state, outputs performance; a hidden class.'''
+    def __init__(self,p,n,k,c,s,t,rho,nsoc,gmax):
+        self.p = p
+        self.n = n
+        self.k = k
+        self.c = c
+        self.s = s
+        self.t = t
+        self.rho = rho
+        self.nsoc = nsoc
+        self.gmax = gmax
+        self.inmat = None
+        self.landscape = None
+        self.argmax = None
+        self.globalmax = 1.0
+        self.current_state = np.zeros(n*p,dtype=np.int8)
+        self.current_perf = np.zeros(p,dtype=float)
+        self.current_soc = np.zeros(p,dtype=float)
+        self.past_state = []
+        self.past_perf = []
+        self.past_soc = []
+        self.past_sim = []
+        self.past_simb = []
+
+    def set_interactions(self):
+        '''sets interaction matrices'''
+        p = self.p
+        n = self.n
+        k = self.k
+        c = self.c
+        s = self.s
+        tmp = np.zeros((n*p, n*p),dtype=np.int8)
+        if s>(p-1):
+            print("Error: S is too large")
+            return
+        couples = nk.generate_couples(p,s)
+        
+        # the idea is to have similar interaction for rho=1 to work
+        internal = nk.interaction_matrix(n,k,"random")
+        external = nk.random_binary_matrix(n,c)
+        # internal coupling
+        for i in range(p):
+            tmp[i*n:(i+1)*n, i*n:(i+1)*n] = internal
+
+        # external coupling
+        for i,qples in zip(range(p),couples):
+            for qple in qples:
+                tmp[i*n:(i+1)*n, qple*n:(qple+1)*n] = external
+
+        self.inmat = tmp
+
+    def set_landscapes(self):
+        '''sets landscapes; set gmax=False to skip calculating global maximum'''
+        p = self.p
+        n = self.n
+        k = self.k
+        c = self.c
+        s = self.s
+        rho = self.rho
+        gmax = self.gmax
+        contrib = nk.contrib_define(p,n,k,c,s,rho)
+        self.landscape = contrib
+        if gmax is True:
+            self.globalmax = nk.get_globalmax(self.inmat,contrib,n,p) # !!! processing heavy !!!
+            
+    def phi(self,myid,x,eps=0.0):
+        '''inputs bitstring, outputs performance; set gmax=False to skip calculating global maximum'''
+        n = self.n
+        p = self.p
+        n_p = n*p
+        imat = self.inmat
+        cmat = self.landscape
+        globalmax = self.globalmax
+        gmax = self.gmax
+        if len(x) != n_p:
+            print("Error: Please enter the full bitstring")
+            return
+        tmp = np.array(nk.calculate_performances(x,imat,cmat,n,p)) / globalmax
+
+        tmp = tmp + np.random.normal(0,eps) # imperfect information
+        output = tmp # if no index is given, return all perfs
+        if myid is not None: # given index, return own perf and mean of others
+            tmp1 = tmp[myid]
+            tmp2 = np.delete(tmp,myid).mean() # mean of others perfs
+            output = (tmp1,tmp2)
+        return output
+
+    def calculate_perf(self):
+        '''uses phi to calculate current performance'''
+        tmp = self.phi(myid=None,x=self.current_state.copy())
+        self.current_perf = tmp
+        output = tmp
+        self.past_perf.append(output)
+        return output
+
+    def archive_state(self):
+        '''archives state'''
+        self.past_state.append(self.current_state.copy())
+        self.past_sim.append(nk.similarity(self.current_state, self.p, self.n, self.nsoc))
+        self.past_simb.append(nk.similarbits(self.current_state, self.p, self.n, self.nsoc))
