@@ -141,6 +141,7 @@ class Organization:
     def __init__(self, nature):
         # environment and user-input params:
         self.nature = nature
+        self.p = nature.p
         self.agents = nature.agents # "hire" all people from environment
         # histories:
         self.states = np.empty((nature.t, nature.n*nature.p), dtype=np.int8) # bitstrings history
@@ -150,15 +151,10 @@ class Organization:
     def form_networks(self):
         '''Generates the network structure for agents to communicate;
         it can be argued that a firm has the means to do that,
-        e.g. through hiring,communication tools etc.'''
-        p = self.p
-        degree = self.degree
-        xi = self.xi
-        net = self.net
-        netshape = ["random","line","cycle","ring","star"]
-        cliques = nk.generate_network(p,degree,xi,netshape[net])
-        for c,a in zip(cliques,self.agents):
-            a.clique = c
+        e.g. through hiring, defining interfaces etc.'''
+        peers_list = nk.generate_network(self.p, self.nature.degree, self.nature.xi, self.nature.net)
+        for peers, agent in zip(peers_list, self.agents):
+            agent.peers = peers
 
     def observe_outcomes(self,tt):
         '''Receives performance report from the Nature'''

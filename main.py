@@ -10,20 +10,19 @@ from time import time, sleep
 ########
 MC = 1000 # number of repetitions
 BLUEPRINT = {
-"p": [5], # number of agents
-"n": [4], # number of bits
-"kcs": [(3,4,3),(1,0,0)], # K,C,S parameters
-"t": [500], # life span of organization
-"rho": [0.3, 0.9], # correlation
-"eps": [0.0], # error std. dev
-"nsoc": [0,2,4], # number of social bits
-"deg": [2],  # two types of degrees
-"xi": [1.0], # probability of communicating
-"ts": [50], # schism time
-"tm": [50], # memory
-"wf": [[1.0,0.0]], # weights for phi phi_total
-"w": [[0.5,0.5]], # goals for phi and desc
-"lazy": [False] # skips normalization by global maximum
+"p": (5,), # number of agents
+"n": (4,), # number of bits
+"kcs": ((3,4,3),(1,0,0)), # K,C,S parameters
+"t": (500,), # life span of organization
+"rho": (0.3, 0.9), # correlation
+"nsoc": (0,2,4), # number of social bits
+"deg": (2,),  # two types of degrees
+"net": ("random","line","cycle","ring","star"), # network structures
+"xi": (1.0,), # probability of communicating
+"tm": (50,), # memory
+"wf": (1.0,), # weight for phi, incentive scheme
+"w": (0.5,), # weight for phi ; soc = 1- desc
+"lazy": (False,) # skips normalization by global maximum
 }
 
 ########

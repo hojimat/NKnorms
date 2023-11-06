@@ -11,10 +11,10 @@ The code is written in _Python_ using an OOP paradigm that features aggregation 
 ### Codebase and directory structure
 The big part of the codebase is the _NKPackage_ that contains utility commands for the comfortable _NK_ development. The documentation for the code is not available at the moment, so it is advised to look at the comments in the code for now.
 
-The file `setup.py` contains the system's architecture written in an OOP paradigm. The files `main.py` and `test.py` contain the particular implementation, given the parameter set. The directory `refmaterial/` contains the utilities and useful functions.
+The directory `players/` contains the definitions of the aforementioned classes. The files `main.py` and `test.py` contain the particular implementation, given the parameter set. The directory `refmaterial/` contains the utilities and useful functions. The directory `nkpack` contains the newest version of the _NKPackages_.
 
 ### Performance
-The `set_landscapes` method is the slowest part of the code, as it runs through every possible bitstring and maps it to a performance. At the moment, `jit` is used for its underlying `xcontrib_full` command under _NKPackage_. Also the `main.py` runs a `multiprocessing.Pool` for faster simulations. _CUDA_ is being considered at the moment, but without clear idea how to implement it.
+The `_calculate_global_maximum` method is the slowest part of the code, as it runs through every possible bitstring and maps it to a performance. At the moment, `jit` is used for its underlying `nk.calculate_performances` command under _NKPackage_. Also the `main.py` runs a `multiprocessing.Pool` for faster simulations. _CUDA_ is being considered at the moment, but without clear idea how to implement it.
 
 ### Credits
-The code is created by Ravshan S.K. I'm on Twitter [@ravshansk](https://twitter.com/ravshansk). The research was done at University of Klagenfurt, Austria between 2019 and 2024 by Ravshanbek Khodzhimatov, Stephan Leitner, and Friederike Wall. 
+The code is written by Ravshan Hojimatov. The research was done at University of Klagenfurt, Austria between 2019 and 2024 by Ravshanbek Khodzhimatov, Stephan Leitner, and Friederike Wall.
