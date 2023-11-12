@@ -15,13 +15,17 @@ BLUEPRINT = {
 "kcs": ((3,4,3),(1,0,0)), # K,C,S parameters
 "t": (500,), # life span of organization
 "rho": (0.3, 0.9), # correlation
+
 "nsoc": (0,2,4), # number of social bits
 "deg": (2,),  # two types of degrees
 "net": ("random","line","cycle","ring","star"), # network structures
 "xi": (1.0,), # probability of communicating
 "tm": (50,), # memory
-"wf": (1.0,), # weight for phi, incentive scheme
 "w": (0.5,), # weight for phi ; soc = 1- desc
+
+"apc": ((2,2,4),), # ALT,PROP,COMP parameters
+"wf": (1.0,), # weight for phi, incentive scheme
+
 "lazy": (False,) # skips normalization by global maximum
 }
 

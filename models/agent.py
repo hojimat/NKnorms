@@ -1,4 +1,4 @@
-'''Agent defintion'''
+'''Employee defintion'''
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 import numpy as np
@@ -22,12 +22,6 @@ class Agent:
         # information about social interactions
         self.soc_memory = np.repeat(-1, 2*nature.nsoc).reshape(2, nature.nsoc) # social storage matrix
         self.peers : Optional[list] = None # agents this agent talks with in a network
-
-    def initialize(self):
-        '''Initializes agent after creation'''
-        self.current_perf = self.nature.phi(None, self.current_state)
-        self.current_util = self.current_perf
-        #self.current_betas[0,0] += 1
 
     def perform_climb(self,lrn=False,soc=False):
         '''The central method. Contains the main decision process of the agent'''

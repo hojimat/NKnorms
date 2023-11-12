@@ -37,6 +37,7 @@ class Nature:
         self.w = kwargs['w'] # weights for performance and social norms
         self.tm = kwargs['tm'] # memory span of agents
         # search behavior
+        self.alt, self.prop, self.comp = kwargs['apc'] # number of alternatives, proposals, composites
         self.wf = kwargs['wf'] # weights for individual vs. collective incentive system
         # history
         self.t = kwargs['t'] # lifespan of the organization
@@ -57,17 +58,24 @@ class Nature:
         self.agents = [Agent(id_=i, nature=self) for i in range(self.p)]
 
     def initialize(self):
-        '''Initializes the simulation'''
+        '''
+        Initializes the parameters for the 0th step of the simulation
+        
+        '''
+        
+        # check for errors
         if (self.agents is None) or (self.organization is None):
             raise nk.UninitializedError("Initialize Agents and Organization before using them.")
 
-        # Set the initial organization-wide random bitstring
+        # Set the initial firm-wide random bitstring (length=N*P)
         self.organization.states[0,:] = np.random.choice(2, self.n*self.p)
+
         # calculate performances of P agents
         performances = self._phi(self.organization.states[0,:])
+        for agent, perf in zip(self.agents, performances):
+            agent.current_perf = perf
 
         for agent in self.agents:
-            agent.initialize()
             agent.report_state()
             agent.nsoc_added = np.zeros(self.t,dtype=np.int8)
             agent.nsoc_added[0] = agent.soc_memory.shape[0]

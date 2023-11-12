@@ -1,4 +1,4 @@
-'''Organization defintion'''
+'''CEO defintion'''
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import numpy as np
@@ -11,9 +11,9 @@ class Organization:
     '''
     Organization class defines tasks, hires people;
     has aggregation relation with Agent class;
+    organizes meetings;
 
     It stores performance and synchrony histories obtained from Nature.
-    
     '''
     def __init__(self, nature: Nature):
         # environment and user-input params:
@@ -38,7 +38,7 @@ class Organization:
             agent.peers = peers
 
     def play(self):
-        '''The central method. Runs the lifetime simulation of the organization.'''
+        '''THIS MOVES TO NATURE The central method. Runs the lifetime simulation of the organization.'''
         self.initialize()
         for t in range(1,self.t):
             # check if the period is active under schism (ignore for goal programing):
