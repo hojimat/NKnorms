@@ -132,6 +132,10 @@ class Agent:
         Returns:
             numpy array of size N*PROP
         '''
+        # get alt 1bit deviations to the current bit string
+        deviations = nk.get_1bit_deviations(self.current_state, self.n, self.id_, alt)
+
+
 
         # get "before" parameters
         idx0 = nk.get_index(self.current_state,self.id,self.n) # location of ^
