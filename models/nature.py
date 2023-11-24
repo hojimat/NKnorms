@@ -68,12 +68,14 @@ class Nature:
             raise nk.UninitializedError("Initialize Agents and Organization before using them.")
 
         # Set the initial firm-wide random bitstring (length=N*P)
-        self.organization.states[0,:] = np.random.choice(2, self.n*self.p)
+        initial_bstring = np.random.choice(2, self.n*self.p)
+        self.organization.states[0,:] = initial_bstring
 
-        # calculate performances of P agents
+        # set states and calculate performances of P agents
         performances = self._phi(self.organization.states[0,:])
         for agent, perf in zip(self.agents, performances):
             agent.current_perf = perf
+            agent.current_state = initial_bstring
 
         for agent in self.agents:
             agent.report_state()

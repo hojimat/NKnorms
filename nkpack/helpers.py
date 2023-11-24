@@ -1,9 +1,10 @@
 
+from __future__ import annotations
 import itertools
-import typing
+from typing import Iterator
 import numpy as np
 
-def variate(param_dict: typing.Dict[str, typing.List]) -> typing.Iterator[typing.Dict]:
+def variate(param_dict: dict[str, list]) -> Iterator[dict]:
     """Creates parameter combinations
 
     Args:
@@ -17,7 +18,7 @@ def variate(param_dict: typing.Dict[str, typing.List]) -> typing.Iterator[typing
     output = (dict(zip(param_keys, i)) for i in value_combinations)
     return output
 
-def pick(vec,count):
+def pick(vec, count):
     """Picks random elements from a vector
 
     Args:
@@ -28,7 +29,7 @@ def pick(vec,count):
         numpy.ndarray: A vector of size count
     """
 
-    tmp = np.random.choice(range(vec),count,replace=False)
+    tmp = np.random.choice( range(vec), count, replace=False)
     return np.sort(tmp)
 
 

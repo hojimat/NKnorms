@@ -3,6 +3,7 @@ import itertools
 import numpy as np
 from numpy.typing import NDArray
 from numba import njit
+from .exceptions import *
 
 def binary_combinations(N,R):
     """Generates all binary vectors with sum R
@@ -134,6 +135,33 @@ def random_neighbour(vec,myid,n):
     rnd = np.random.choice(range(myid*n,(myid+1)*n))
     vec[rnd] = 1- vec[rnd]
     return vec
+
+def get_1bit_deviations(bstring: NDArray, n: int, id_: int, num: int) -> NDArray:
+    """Generates `num` random binary vectors
+    that are 1-bit away from a given bit string.
+
+    Args:
+        bstring: An input full N*P-sized  bitstring
+        n : Number of tasks allocated to a single agent
+        id_ : An id of an agent of interest
+        num: Number of neighbor bit strings you want
+
+    Returns:
+        A numpy array with num rows of size N*P each, for which exactly 1 bit
+        corresponding to Agent id_ is flipped.
+    """
+    if num > n:
+        raise InvalidParameterError("Cannot have more 1bit deviations than there are bits.")
+
+    # first, get num copies of an original bit string
+    flipped = np.tile(bstring, (num,1))
+    # draw num random indices to flip bits
+    indices = n*id_ + np.random.choice(n,num,replace=False)
+    # flip bits
+    rows = np.arange(num)
+    flipped[rows, indices] = 1 - flipped[rows, indices]
+
+    return flipped
 
 @njit
 def get_index(vec,myid,n):

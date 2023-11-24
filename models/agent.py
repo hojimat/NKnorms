@@ -14,9 +14,10 @@ class Agent:
         self.id_ = id_
         self.nature = nature
         self.organization = nature.organization
-        self.n = nature.n
+        self.n = self.organization.n
+        self.p = self.organization.p
         # current status
-        self.current_state: NDArray = np.empty(self.n, dtype=np.int8)
+        self.current_state: NDArray = np.empty(self.n*self.p, dtype=np.int8)
         self.current_perf: float = 0.0
         self.current_soc: float = np.repeat(-1, nature.nsoc)
         # information about social interactions
@@ -113,4 +114,61 @@ class Agent:
         i = self.id
         self.nature.current_state[i*n:(i+1)*n] = self.current_state[i*n:(i+1)*n].copy()
         self.nature.current_soc[i] = self.phi_soc
+
+
+    def screen(self, alt: int, prop: int, method: str) -> NDArray:
+        '''
+        Ever agent must prepare to the meeting depending on the Meeting Type.
+        By default, every agent screens ALT 1-bit deviations to their current bitstrings
+        and picks top PROP proposals and brings them into the composition stage.
+        
+        In some meeting types this screening process may be random leaving the decision
+        to the further stages. Then this method will be overloaded in those meetings.
+
+        Args:
+            alt: number of alternatives to screen
+            prop: number of proposals to choose 
+            method: screening method (by utility, by performance, randomly)
+        Returns:
+            numpy array of size N*PROP
+        '''
+
+        # get "before" parameters
+        idx0 = nk.get_index(self.current_state,self.id,self.n) # location of ^
+        all_phis = list(self.current_perf) # vector of performances of everybody
+        my_phi = all_phis.pop(self.id) # get own perf
+        other_phis = np.mean(all_phis) # get rest perfs
+        phi0 = wf[0] * my_phi + wf[1] * other_phis # calculate earnings
+        #beta0 = self.current_betas[idx0,:] # current beliefs
+        soc0 = self.current_soc # current social bits (subset of bit0) 
+
+        # get "after" paarameters
+        bit1 = nk.random_neighbour(self.current_state,self.id,self.n) # candidate bitstring
+        idx1 = nk.get_index(bit1,self.id,self.n) # location of ^
+        my_phi, other_phis = self.nature.phi(self.id,bit1,self.eps) # tuple of own perf and mean of others
+        phi1 = wf[0] * my_phi + wf[1] * other_phis # calc potential earnings
+        #beta1 = self.current_betas[idx1,:] # calc potential updated beliefs
+        soc1 = nk.extract_soc(bit1,self.id,self.n,self.nsoc) # potential social bits (subset of bit1)
+
+        # calculate mean betas
+        #mbeta0 = nk.beta_mean(*beta0)
+        #mbeta1 = nk.beta_mean(*beta1)
+
+        # calculate soc frequency
+        fsoc0 = nk.calculate_freq(soc0,self.soc_memory)
+        fsoc1 = nk.calculate_freq(soc1,self.soc_memory)
+
+        # calculate utility 
+        util0 = w[0] * phi0 + w[1] * fsoc0
+        util1 = w[0] * phi1 + w[1] * fsoc1
+
+        # the central decision to climb or stay
+        if util1 > util0:
+            self.current_state = bit1
+            self.phi_soc = fsoc1
+        else:
+            self.phi_soc = fsoc0
+
+        # update beliefs (betas) 
+        #self.current_betas[idx1,int(phi1<phi0)] += 1
 
