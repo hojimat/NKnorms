@@ -81,7 +81,8 @@ def generate_landscape(p: int, n: int, k: int, c: int, s: int, rho: float) -> ND
 
 @njit
 def calculate_performances(bstring: NDArray[np.int8], imat: NDArray[np.int8], cmat: NDArray[np.float32], n: int, p: int) -> NDArray[np.float32]:
-    """Computes a performance of a bitstring given contribution matrix (landscape) and interaction matrix
+    """
+    Computes a performance of a bitstring given contribution matrix (landscape) and interaction matrix
 
     Notes:
         Uses Numba's njit compiler.
@@ -94,32 +95,58 @@ def calculate_performances(bstring: NDArray[np.int8], imat: NDArray[np.int8], cm
         p: Number of landscapes (population size)
 
     Returns:
-        A list of mean performances of an input vector X for P agents, given cmat and imat.
+        A list of P performances for P agents.
+
     """
+
     # get performance contributions for every bit:
     phi = np.zeros(n*p)
     for i in range(n*p):
         # subset only coupled bits, i.e. where
         # interaction matrix is not zero:
         coupled_bits = bstring[np.where(imat[:,i]>0)]
-        phi[i] = cmat[bin2dec(coupled_bits), i] # vector of size N*P
+
+        # convert coupled_bits to decimal. this long weird function 
+        # does exactly that very fast and can be jit-compiled,
+        # unlike a more straightforward function. This is equivalent to
+        # the function nk.bin2dec but is inserted here to avoid jit-ing it.
+        bin_to_dec = sum(coupled_bits * 2**(np.arange(len(coupled_bits))[::-1]))
+
+        # performance contribution of x[i]:
+        phi[i] = cmat[bin_to_dec, i] 
 
     # get agents' performances by averaging their bits'
     # performances, thus getting vector of P mean performances
     # make rows of size P, and take mean of each row
-    output = phi.reshape(-1,p).mean(axis=1)
+    Phi = phi.reshape(-1,p).mean(axis=1)
 
-    return output
+    return Phi
 
 
 @njit
-def get_globalmax(imat, cmat, n, p) -> float:
-    """Calculates global maximum"""
-    nxp = n*p
-    max_performance = np.zeros(p, dtype=float)
-    for i in range(2**nxp):
-        bval = calculate_performances(dec2bin(i, nxp), imat, cmat, n, p)
-        if sum(bval) > sum(max_performance):
+def get_globalmax(imat: NDArray[np.int8], cmat: NDArray[np.float32], n: int, p: int) -> float:
+    """
+    Calculate global maximum by calculating performance for every single bit string.
+
+    Notes:
+        Uses Numba's njit compiler.
+
+    Args:
+        imat: Interaction matrix
+        cmat: Contribution matrix (landscape)
+        n: Number of tasks per landscape
+        p: Number of landscapes (population size)
+    
+    Returns:
+        The float value with the maximum performance (sum of performance contributions phi[i])
+
+    """
+
+    max_phis = np.zeros(p, dtype=np.float32)
+
+    for i in range(2 ** (n*p) ):
+        phis = calculate_performances(dec2bin(i, nxp), imat, cmat, n, p)
+        if sum(phis) > sum(max_phis):
             max_performance = bval
 
     return np.mean(max_performance, dtype=float)

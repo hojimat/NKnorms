@@ -2,7 +2,6 @@
 import itertools
 import numpy as np
 from numpy.typing import NDArray
-from numba import njit
 from .exceptions import *
 
 def binary_combinations(N,R):
@@ -86,39 +85,36 @@ def random_binary_matrix(N,R,diag=None):
     output = np.delete(tmp,[0,1],0) # remove first 2 empty rows created above
     return(output)
 
-@njit
-def dec2bin(x: int, sz: int) -> NDArray[np.int8]:
-    """Converts decimal integer to binary array
+def dec2bin(decimal: int, len_: int) -> NDArray[np.int8]:
+    """
+    Converts an integer to binary list
     
     Args:
-        x: An input decimal integer
-        sz: The desired minimum size of the output
+        decimal: An input integer
+        len_: length of the bitstring
 
     Returns:
-        A numpy array with leading zeros to match size of sz
+        A len_ sized numpy array of ones and zeros
     """
-    output = []
 
-    while x > 0:
-        output.insert(0,x%2)
-        x = int(x/2)
+    if decimal >= 2 ** len_:
+        raise InvalidParameterError('The binary representation of the input will not fit into the given length')
 
-    if len(output)<sz:
-        output = [0]*(sz-len(output)) + output
+    binary = (decimal // 2**np.arange(len_)[::-1]) % 2
+    return binary.astype(dtype=np.int8)
 
-    return np.array(output, dtype=np.int8)
 
-@njit
-def bin2dec(x: NDArray) -> int:
-    """Converts binary list to integer
+def bin2dec(binary: NDArray) -> int:
+    """
+    Converts binary list to integer
     
     Args:
-        x: An input vector with binary values
+        binary: An input vector with binary values
 
     Returns:
         A decimal integer equivalent of the binary input
     """
-    return sum(x * 2**(np.arange(len(x))[::-1]))
+    return sum(binary * 2**(np.arange(len(x))[::-1]))
 
 def random_neighbour(vec,myid,n):
     """Generates a random binary vector that is 1-bit away (a unit Hamming distance)
@@ -163,7 +159,6 @@ def get_1bit_deviations(bstring: NDArray, n: int, id_: int, num: int) -> NDArray
 
     return flipped
 
-@njit
 def get_index(vec,myid,n):
     """Gets a decimal equivalent for the bitstring for agent myid
 

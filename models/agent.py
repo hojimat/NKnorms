@@ -135,10 +135,10 @@ class Agent:
         # get alt 1bit deviations to the current bit string
         deviations = nk.get_1bit_deviations(self.current_state, self.n, self.id_, alt)
 
-
-
+        # calculate utilities for all deviations
+        
         # get "before" parameters
-        idx0 = nk.get_index(self.current_state,self.id,self.n) # location of ^
+        idx0 = nk.get_index(self.current_state, self.id,s elf.n) # location of ^
         all_phis = list(self.current_perf) # vector of performances of everybody
         my_phi = all_phis.pop(self.id) # get own perf
         other_phis = np.mean(all_phis) # get rest perfs
