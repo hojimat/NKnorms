@@ -174,51 +174,50 @@ def get_index(vec,myid,n):
     return bin2dec(vec[myid*n:(myid+1)*n])
 
 
-def hamming_distance(x,y):
+def hamming_distance(x:NDArray[np.int8], y:NDArray[np.int8]) -> int:
     """Calculates the Hamming distance (count of different bits) between two bitstrings
     
     Args:
-        x (list): first list
-        y (list): second list
+        x: first bitstring
+        y: second bitstring
 
     Returns:
         int: An integer value
 
     """
-    return np.sum(np.abs(np.array(x) - np.array(y)))
+    return np.sum(x != y)
 
-def similarbits(x,p,n,nsoc):
+def similarbits(x: NDArray[np.int8], p:int, n:int, nsoc:int) -> float:
     """Calculates the similarity measure of the bitstring
 
     Args:
-        x (list): the bitstring of interest
-        p (int): number of agents
-        n (int): number of tasks per agent
-        nsoc (int): number of imitated tasks per agent
+        x: the bitstring of interest
+        p: number of agents
+        n: number of tasks per agent
+        nsoc: number of imitated tasks per agent
 
     Returns:
-        float: The float between 0 and 1
+        The float between 0 and 1
     """
     if nsoc>n:
-        print('Number of social bits exceeds total number of bits')
+        raise InvalidParameterError('Number of social bits exceeds total number of bits')
     tmp = np.reshape(x, (p,n))
     tmp = np.sum(np.array(tmp), axis=0)[(n-nsoc):]
     tmp = np.max((tmp/p, 1-tmp/p), axis=0)
-    output = np.mean(tmp)
-    return output
+    return np.mean(tmp)
 
 
-def similarity(x,p,n,nsoc):
+def similarity(x: NDArray[np.int8], p:int, n:int, nsoc:int) -> float:
     """Calculates the similarity measure of the bitstring
 
     Args:
-        x (list): the bitstring of interest
-        p (int): number of agents
-        n (int): number of tasks per agent
-        nsoc (int): number of imitated tasks per agent
+        x: the bitstring of interest
+        p: number of agents
+        n: number of tasks per agent
+        nsoc: number of imitated tasks per agent
 
     Returns:
-        float: The float between 0 and 1
+        The float between 0 and 1
     """
     if p<2:
         raise InvalidParameterError('Need at least 2 agents for similarity measure')
@@ -226,26 +225,26 @@ def similarity(x,p,n,nsoc):
         raise InvalidParameterError('Please enter non-zero number of social bits')
 
     tmp = np.reshape(x, (p,n))[:,(n-nsoc):]
-    summ = 0
+    sum_ = 0
     for i in range(p):
         for j in range(i,p):
-            summ += hamming_distance(tmp[i,:],tmp[j,:])
+            sum_ += hamming_distance(tmp[i,:],tmp[j,:])
 
-    max_summ = nsoc*(p/2)**2 if p%2==0 else nsoc*((p-1)/2)**2 + (p-1)*(nsoc/2)
-    output = 1-summ/max_summ
+    max_sum = nsoc*(p/2)**2 if p%2==0 else nsoc*((p-1)/2)**2 + (p-1)*(nsoc/2)
+    output = 1-sum_/max_sum
     return output
 
-def extract_soc(x,myid,n,nsoc):
+def extract_soc(x:NDArray[np.int8], id_:int, n:int, nsoc:int) -> NDArray[np.int8]:
     """Extracts social bits from a bitstring
 
     Args:
-        x (numpy.ndarray): An input vector
-        myid (int): An id of an agent of interest
-        n (int): Number of tasks allocated to a single agent
-        nsoc (int): Number of social tasks (exogeneous)
+        x: An input vector
+        id_: An id of an agent of interest
+        n: Number of tasks allocated to a single agent
+        nsoc: Number of social tasks (exogeneous)
 
     Returns:
-        numpy.ndarray: A vector of size nsoc
+        A vector of size nsoc
     """
 
-    return x[(myid+1)*n-nsoc:(myid+1)*n]
+    return x[(id_+1)*n-nsoc:(id_+1)*n]

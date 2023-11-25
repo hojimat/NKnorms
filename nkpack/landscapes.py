@@ -5,16 +5,16 @@ from numba import njit
 from scipy.stats import norm
 
 
-def interaction_matrix(N,K,shape="roll"):
+def interaction_matrix(N:int, K:int, shape:str="roll") -> NDArray[np.int8]:
     """Creates an interaction matrix for a given K
 
     Args:
-        N (int): Number of bits
-        K (int): Level of interactions
-        shape (str): Shape of interactions. Takes values 'roll' (default), 'random', 'diag'.
+        N: Number of bits
+        K: Level of interactions
+        shape: Shape of interactions. Takes values 'roll' (default), 'random', 'diag'.
 
     Returns:
-        numpy.ndarray: an NxN numpy array with diagonal values equal to 1 and rowSums=colSums=K+1
+        An NxN numpy array with diagonal values equal to 1 and rowSums=colSums=K+1
     """
 
     output = None
@@ -142,11 +142,20 @@ def get_globalmax(imat: NDArray[np.int8], cmat: NDArray[np.float32], n: int, p: 
 
     """
 
-    max_phis = np.zeros(p, dtype=np.float32)
+    max_performance = 0.0
 
     for i in range(2 ** (n*p) ):
-        phis = calculate_performances(dec2bin(i, nxp), imat, cmat, n, p)
-        if sum(phis) > sum(max_phis):
-            max_performance = bval
+        # convert the decimal number i to binary.
+        # this long weird function does exactly that very fast 
+        # and can be jit-compiled, unlike a more straightforward function.
+        # This is equivalent to nk.dec2bin but is inserted here to avoid jit-ing it.
+        dec_to_bin = ( (i // 2**np.arange(n*p)[::-1]) % 2 ).astype(np.int8)
 
-    return np.mean(max_performance, dtype=float)
+        # calculate performances for p agents
+        phis = calculate_performances(dec_to_bin, imat, cmat, n, p)
+
+        # find global max for aggregate performance
+        if sum(phis) > max_performance:
+            max_performance = sum(phis)
+
+    return max_performance
