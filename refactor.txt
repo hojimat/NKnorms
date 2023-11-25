@@ -1,13 +1,4 @@
-- combine gmax and globalmax
-- move functionality from org to nature
-- rename w and wf
-- make w and wf float instead of list
-- make perf,soc,sync history a fixed numpy array
-- rename inmat 
-- make direct references to instance variables
-- write custom errors and raise instead of return
-- 
-
+pass nature, firm, agent by reference if possible
 
 
     def phi(self, myid, x, eps=0.0):

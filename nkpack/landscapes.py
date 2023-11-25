@@ -54,7 +54,8 @@ def interaction_matrix(N:int, K:int, shape:str="roll") -> NDArray[np.int8]:
 
 
 def generate_landscape(p: int, n: int, k: int, c: int, s: int, rho: float) -> NDArray[np.float32] :
-    """Defines a matrix of performance contributions for given parameters.
+    """
+    Defines a matrix of performance contributions for given parameters.
     This is a matrix with N*P columns each corresponding to a bit,
     and 2**(1+K+C*S) rows each corresponding to a possible bitstring.
 
@@ -85,7 +86,10 @@ def calculate_performances(bstring: NDArray[np.int8], imat: NDArray[np.int8], cm
     Computes a performance of a bitstring given contribution matrix (landscape) and interaction matrix
 
     Notes:
-        Uses Numba's njit compiler.
+        Uses Numba's njit compiler, so the advanced numpy operations such as np.mean(axis=1)
+        are not supported. That is why the code might seem to be dumbed down. But njit
+        speeds up any list comprehensions or numpy tricks by 4 times at least
+        in this particular case.
 
     Args:
         x : An input vector
@@ -117,16 +121,20 @@ def calculate_performances(bstring: NDArray[np.int8], imat: NDArray[np.int8], cm
 
     # get agents' performances by averaging their bits'
     # performances, thus getting vector of P mean performances
-    # make rows of size P, and take mean of each row
-    Phi = phi.reshape(-1,p).mean(axis=1)
-
-    return Phi
-
+    Phis = np.zeros(p, dtype=np.float32)
+    for i in range(p):
+        Phis[i] = phi[n*i : n*(i+1)].mean()
+        
+    return Phis
 
 @njit
 def get_globalmax(imat: NDArray[np.int8], cmat: NDArray[np.float32], n: int, p: int) -> float:
     """
     Calculate global maximum by calculating performance for every single bit string.
+    There is a reason for why it does not save every performance 
+    somewhere, so that we can have a giant lookup table and never have to 
+    calculate performances ever again, however, the performances are float32 (4 Bytes),
+    which means that for 5 agents with 4 tasks each we have (2^20)*4 = 
 
     Notes:
         Uses Numba's njit compiler.

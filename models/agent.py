@@ -122,18 +122,16 @@ class Agent:
         By default, every agent screens ALT 1-bit deviations to their current bitstrings
         and picks top PROP proposals and brings them into the composition stage.
         
-        In some meeting types this screening process may be random leaving the decision
-        to the further stages. Then this method will be overloaded in those meetings.
-
         Args:
             alt: number of alternatives to screen
-            prop: number of proposals to choose 
+            prop: number of proposals to choose from the alternatives
             method: screening method (by utility, by performance, randomly)
         Returns:
             numpy array of size N*PROP
         '''
+
         # get alt 1bit deviations to the current bit string
-        deviations = nk.get_1bit_deviations(self.current_state, self.n, self.id_, alt)
+        alternatives = nk.get_1bit_deviations(self.current_state, self.n, self.id_, alt)
 
         # calculate utilities for all deviations
         
