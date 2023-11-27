@@ -26,7 +26,8 @@ BLUEPRINT = {
 "apc": ((2,2,4),), # ALT,PROP,COMP parameters
 "wf": (1.0,), # weight for phi, incentive scheme
 
-"lazy": (False,) # skips normalization by global maximum
+"normalize": (True,), # normalizes by global maximum
+"precompute": (True,), # pre-computes performances for all bitstrings
 }
 
 ########

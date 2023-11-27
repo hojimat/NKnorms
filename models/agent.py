@@ -9,19 +9,20 @@ if TYPE_CHECKING:
 
 class Agent:
     ''' Decides on tasks, interacts with peers; aggregation relation with Organization class.'''
-    def __init__(self, id_: int, nature: Nature):
+    def __init__(self, id_:int, n:int, p:int, nsoc:int, nature:Nature):
         # adopt variables from the organization; not an inheritance.
         self.id_ = id_
         self.nature = nature
         self.organization = nature.organization
-        self.n = self.organization.n
-        self.p = self.organization.p
+        self.n = n
+        self.p = p
+        self.nsoc = nsoc
         # current status
         self.current_state: NDArray = np.empty(self.n*self.p, dtype=np.int8)
         self.current_perf: float = 0.0
-        self.current_soc: float = np.repeat(-1, nature.nsoc)
+        self.current_soc: float = np.repeat(-1, self.nsoc)
         # information about social interactions
-        self.soc_memory = np.repeat(-1, 2*nature.nsoc).reshape(2, nature.nsoc) # social storage matrix
+        self.lookup_shared_bits = np.repeat(-1, 2*self.nsoc).reshape(2, nature.nsoc) # shared social bits memory
         self.peers : Optional[list] = None # agents this agent talks with in a network
 
     def perform_climb(self,lrn=False,soc=False):
@@ -53,8 +54,8 @@ class Agent:
         #mbeta1 = nk.beta_mean(*beta1)
 
         # calculate soc frequency
-        fsoc0 = nk.calculate_freq(soc0,self.soc_memory)
-        fsoc1 = nk.calculate_freq(soc1,self.soc_memory)
+        fsoc0 = nk.calculate_freq(soc0,self.lookup_shared_bits)
+        fsoc1 = nk.calculate_freq(soc1,self.lookup_shared_bits)
 
         # calculate utility 
         util0 = w[0] * phi0 + w[1] * fsoc0
@@ -100,7 +101,7 @@ class Agent:
         tm = self.tm
         sadd = self.nsoc_added
         if tt >= tm:
-            self.soc_memory = self.soc_memory[sadd[tt-tm]:,:]
+            self.lookup_shared_bits = self.lookup_shared_bits[sadd[tt-tm]:,:]
 
     def observe_state(self):
         '''observes the current bitstring choice by everyone'''
@@ -130,10 +131,14 @@ class Agent:
             numpy array of size N*PROP
         '''
 
-        # get alt 1bit deviations to the current bit string
+        # get alt 1bit deviations to the current bit string; shape=ALTx(N*P)
         alternatives = nk.get_1bit_deviations(self.current_state, self.n, self.id_, alt)
+        # calculate performance for every alternative; shape=ALTx1
+        performances = np.apply_along_axis(self.nature.phi, axis=1, arr=alternatives)[:, self.id_]
+        # calculate conformity only for every alternative; shape=ALTx1
+        conformities = 1
+        # sort alternatives via corresponding row of performances
 
-        # calculate utilities for all deviations
         
         # get "before" parameters
         idx0 = nk.get_index(self.current_state, self.id,s elf.n) # location of ^
@@ -157,8 +162,8 @@ class Agent:
         #mbeta1 = nk.beta_mean(*beta1)
 
         # calculate soc frequency
-        fsoc0 = nk.calculate_freq(soc0,self.soc_memory)
-        fsoc1 = nk.calculate_freq(soc1,self.soc_memory)
+        fsoc0 = nk.calculate_freq(soc0,self.lookup_shared_bits)
+        fsoc1 = nk.calculate_freq(soc1,self.lookup_shared_bits)
 
         # calculate utility 
         util0 = w[0] * phi0 + w[1] * fsoc0

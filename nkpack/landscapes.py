@@ -114,7 +114,7 @@ def calculate_performances(bstring: NDArray[np.int8], imat: NDArray[np.int8], cm
         # does exactly that very fast and can be jit-compiled,
         # unlike a more straightforward function. This is equivalent to
         # the function nk.bin2dec but is inserted here to avoid jit-ing it.
-        bin_to_dec = sum(coupled_bits * 2**(np.arange(len(coupled_bits))[::-1]))
+        bin_to_dec = sum(coupled_bits * 2**(np.arange(coupled_bits.size)[::-1]))
 
         # performance contribution of x[i]:
         phi[i] = cmat[bin_to_dec, i] 
@@ -167,3 +167,46 @@ def get_globalmax(imat: NDArray[np.int8], cmat: NDArray[np.float32], n: int, p: 
             max_performance = sum(phis)
 
     return max_performance
+
+@njit
+def calculate_all_performances(imat: NDArray[np.int8], cmat: NDArray[np.float32], n: int, p: int) -> tuple[NDArray[np.float32], float]:
+    """
+    Calculate global maximum by calculating performance for every single bit string.
+    There is a reason for why it does not save every performance 
+    somewhere, so that we can have a giant lookup table and never have to 
+    calculate performances ever again, however, the performances are float32 (4 Bytes),
+    which means that for 5 agents with 4 tasks each we have (2^20)*4 = 
+
+    Notes:
+        Uses Numba's njit compiler.
+
+    Args:
+        imat: Interaction matrix
+        cmat: Contribution matrix (landscape)
+        n: Number of tasks per landscape
+        p: Number of landscapes (population size)
+    
+    Returns:
+        The p x (2^n*p) numpy array of each agent's performance for each full-sized bit string
+
+    """
+    
+    max_performance = 0.0
+    performances = np.empty((2**(n*p), p), dtype=np.float32)
+
+    for i in range(2 ** (n*p)):
+        # convert the decimal number i to binary.
+        # this long weird function does exactly that very fast 
+        # and can be jit-compiled, unlike a more straightforward function.
+        # This is equivalent to nk.dec2bin but is inserted here to avoid jit-ing it.
+        dec_to_bin = ( (i // 2**np.arange(n*p)[::-1]) % 2 ).astype(np.int8)
+
+        # calculate performances for p agents
+        phis = calculate_performances(dec_to_bin, imat, cmat, n, p)
+        performances[i,:] = phis
+
+        # find global max for aggregate performance
+        if sum(phis) > max_performance:
+            max_performance = sum(phis)
+
+    return performances, max_performance

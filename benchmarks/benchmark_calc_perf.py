@@ -95,8 +95,22 @@ def using_njit():
     return max_performance
 
 
+@benchmark
+@njit
+def using_njit_list_comprehension():
+    def calc_perf(num):
+        dec_to_bin = ( (num // 2**np.arange(n*p)[::-1]) % 2 ).astype(np.int8)
+        phis = calculate_performances(dec_to_bin, imat, landscape, n, p)
+        return np.sum(phis)
+
+    phis = [calc_perf(i) for i in range(2 ** (n*p) )]
+
+    return max(phis)
+
+
 if __name__=='__main__':   
     #using_for_loop() # 9.229 sec
     #using_for_loop_with_inner_function() # 8.9965
     #using_list_comprehension_with_inner_function() # 8.8082
-    using_njit()
+    using_njit() # 1.9
+    #using_njit_list_comprehension() # 2.2

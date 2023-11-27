@@ -6,6 +6,7 @@ from numpy.typing import NDArray
 import nkpack as nk
 if TYPE_CHECKING:
     from .nature import Nature
+    from .agent import Agent
 
 class Organization:
     '''
@@ -15,12 +16,12 @@ class Organization:
 
     It stores performance and synchrony histories obtained from Nature.
     '''
-    def __init__(self, nature: Nature):
+    def __init__(self, n:int, p:int, nature: Nature):
         # environment and user-input params:
         self.nature = nature
-        self.n = nature.n
-        self.p = nature.p
-        self.agents = nature.agents # "hire" all people from environment
+        self.n = n
+        self.p = p
+        self.agents: list[Agent] = None # "hire" all people from environment
         # histories:
         self.states = np.empty((nature.t, nature.n*nature.p), dtype=np.int8) # bitstrings history
         self.performances = np.empty((nature.t, nature.p), dtype=np.float32) # agents' performances 

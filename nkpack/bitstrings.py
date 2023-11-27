@@ -114,7 +114,7 @@ def bin2dec(binary: NDArray) -> int:
     Returns:
         A decimal integer equivalent of the binary input
     """
-    return sum(binary * 2**(np.arange(len(x))[::-1]))
+    return sum(binary * 2**(np.arange(binary.size)[::-1]))
 
 def random_neighbour(vec,myid,n):
     """Generates a random binary vector that is 1-bit away (a unit Hamming distance)
