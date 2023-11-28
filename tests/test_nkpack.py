@@ -22,6 +22,10 @@ def allocations():
     network =  np.array([[0.,1.,1.,1.],[0.,0.,0.,0.],[0.,0.,0.,0.],[0.,0.,0.,0.]])
     return {'net': network}
 
+@pytest.fixture
+def social():
+    lookup = np.array([[1,0], [0,0], [0,0], [1,1]])
+    return {'lookup': lookup}
 
 def test_variate(blueprint):
     assert list(nk.variate(blueprint)) == [
@@ -43,3 +47,11 @@ def test_dec2bin(bstrings):
 
 def test_hamming_distance(bstrings):
     assert nk.hamming_distance(bstrings['bin'], bstrings['bin2']) == 3
+
+def test_calculate_frequency(social):
+    assert nk.calculate_frequency([1,1], social['lookup']) == 0.375
+    assert nk.calculate_frequency([0,0], social['lookup']) == 0.625
+    
+    multiple = np.array([[1,1], [0,0]])
+    freqs = np.apply_along_axis(lambda bstr: nk.calculate_frequency(bstr, social['lookup']), 1, multiple)
+    assert (freqs == np.array([0.375, 0.625])).all()

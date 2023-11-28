@@ -27,13 +27,17 @@ class Organization:
         self.performances = np.empty((nature.t, nature.p), dtype=np.float32) # agents' performances 
         self.synchronies = np.empty(nature.t, dtype=np.float32) # synchrony measures history
 
-    def form_networks(self):
-        '''Generates the network structure for agents to communicate;
+    def form_networks(self) -> None:
+        '''
+        Generates the network structure for agents to communicate;
         it can be argued that a firm has the means to do that,
-        e.g. through hiring, defining interfaces etc.'''
-        peers_list = nk.generate_network(self.p, self.nature.degree, self.nature.xi, self.nature.net)
+        e.g. through hiring, defining interfaces etc.
+        
+        '''
         if self.agents is None:
             raise nk.UninitializedError("Agents are not initialized yet.")
+
+        peers_list = nk.generate_network(self.p, self.nature.degree, self.nature.xi, self.nature.net)
 
         for peers, agent in zip(peers_list, self.agents):
             agent.peers = peers
@@ -61,7 +65,7 @@ class Organization:
                 agent.forget_soc(t)
             # agents share social norms and observe the realized state
             for agent in self.agents:
-                agent.share_soc(t)
+                agent.publish_social_bits(t)
                 agent.observe_state()
             # nature archives the state 
             self.nature.archive_state()

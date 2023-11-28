@@ -30,7 +30,7 @@ class Nature:
         self.globalmax : float = 1.0
         self.interaction_matrix : NDArray[np.int8] = None
         self.landscape : NDArray[np.float32] = None
-        self.lookup_performance: NDArray[np.float32] = None # Px2^(n*p) lookup table of bstring perfs
+        self.performance_lookup: NDArray[np.float32] = None # Px2^(n*p) lookup table of bstring perfs
         # social interactions
         self.nsoc = kwargs['nsoc'] # number of social bits
         self.degree = kwargs['deg'] # degree of network of agents (analog and digital)
@@ -65,7 +65,7 @@ class Nature:
     def create_players(self):
         '''Spawn main players: 1 organization and P agents'''
         self.organization = Organization(n=self.n, p=self.p, nature=self)
-        self.agents = [Agent(id_=i, n=self.n, p=self.p, nsoc=self.nsoc, nature=self) for i in range(self.p)]
+        self.agents = [Agent(id_=i,n=self.n,p=self.p,nsoc=self.nsoc,degree=self.degree,tm=self.tm,nature=self) for i in range(self.p)]
         self.organization.agents = self.agents
 
     def initialize(self):
@@ -78,6 +78,9 @@ class Nature:
         if (self.agents is None) or (self.organization is None):
             raise nk.UninitializedError("Initialize Agents and Organization before using them.")
 
+        # form networks through which agents will each have peers to communicate with
+        self.organization.form_networks()
+
         # Set the initial firm-wide random bitstring (length=N*P)
         initial_bstring = np.random.choice(2, self.n*self.p)
         self.organization.states[0,:] = initial_bstring
@@ -85,13 +88,14 @@ class Nature:
         # set states and calculate performances of P agents
         performances = self.phi(self.organization.states[0,:])
         for agent, perf in zip(self.agents, performances):
-            agent.current_perf = perf
+            agent._current_performance = perf
             agent.current_state = initial_bstring
+
 
         for agent in self.agents:
             agent.report_state()
             agent.nsoc_added = np.zeros(self.t,dtype=np.int8)
-            agent.nsoc_added[0] = agent.lookup_shared_bits.shape[0]
+            agent.nsoc_added[0] = agent._received_bits_memory.shape[0]
 
         self.nature.calculate_perf()
         self.observe_outcomes(0)
@@ -115,7 +119,7 @@ class Nature:
             raise nk.InvalidBitstringError("Please enter the full bitstring.")
 
         if self.precompute:
-            return self.lookup_performance[nk.bin2dec(bstring),:] / self.globalmax
+            return self.performance_lookup[nk.bin2dec(bstring),:] / self.globalmax
 
         return nk.calculate_performances(bstring, self.interaction_matrix, self.landscape, self.n, self.p) / self.globalmax
 
@@ -168,7 +172,7 @@ class Nature:
         
         '''
 
-        self.lookup_performance, self.globalmax = nk.calculate_all_performances(self.interaction_matrix, self.landscape, self.n, self.p)
+        self.performance_lookup, self.globalmax = nk.calculate_all_performances(self.interaction_matrix, self.landscape, self.n, self.p)
 
 
     def _calculate_current_performances(self):

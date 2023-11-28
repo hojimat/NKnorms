@@ -27,7 +27,7 @@ def assign_tasks(N,POP,shape="solo"):
     return output
 
 
-def generate_network(pop: int, s: int = 2, pcom: float = 1.0, shape: str = "random", absval: bool = False) -> NDArray:
+def generate_network(pop: int, s: int = 2, pcom: float = 1.0, shape: str = "random", absval: bool = False) -> NDArray[np.float32]:
     """Generates a unidirectional network topology
 
     Args:

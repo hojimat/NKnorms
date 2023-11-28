@@ -178,8 +178,8 @@ class Agent:
         #mbeta1 = nk.beta_mean(*beta1)
 
         # calculate soc frequency
-        fsoc0 = nk.calculate_freq(soc0,self.soc_memory)
-        fsoc1 = nk.calculate_freq(soc1,self.soc_memory)
+        fsoc0 = nk.calculate_frequency(soc0,self.soc_memory)
+        fsoc1 = nk.calculate_frequency(soc1,self.soc_memory)
 
         # calculate utility 
         util0 = None

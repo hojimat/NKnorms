@@ -1,4 +1,5 @@
 import numpy as np
+from numpy.typing import NDArray
 
 def cobb_douglas(weights,vec):
     """A Cobb-Douglas utility function with given weights
@@ -71,23 +72,29 @@ def goal_prog(perf1,perf2,u,p1,p2):
     output = -tmp
     return output
 
-def calculate_freq(x,vec):
-    """Calclates frequency of vec in x
+def calculate_frequency(bstring: NDArray[np.int8], lookup_table: NDArray[np.int8]) -> float:
+    """
+    Calclates frequency of a bitstring in a (pre-flattened) lookup table of bistrings.
 
     Args:
-        x (numpy.ndarray): A 2d matrix
-        vec (numpy.ndarray): A 1d array
+        bstring: 1xNSOC sized array
+        lookup_table: (TM*DEG)xNSOC sized array of bstrings
 
     Returns:
-        float: Frequency of vec in x
-    """
+        Frequency of bstring in lookup_table
 
-    if x is None or vec.size==0 or vec[0,0]==-1:
-        return 0.0
-    freq = np.mean(vec,axis=0)
-    tmp1 = np.multiply(x,freq)
-    tmp2 = np.multiply(1-x,1-freq)
-    return np.mean(tmp1 + tmp2)
+    Example:
+        bstring=np.array([1,1])
+        lookup_table = np.array([
+            [1,1],
+            [0,0],
+            [0,0]
+        ])
+
+        should return 1/3
+    """
+    
+    return np.mean(lookup_table==bstring)
 
 def beta_mean(x,y):
     """Calculates the mean of the Beta(x,y) distribution
@@ -101,3 +108,25 @@ def beta_mean(x,y):
     """
     
     return x / (x+y)
+
+
+def decompose_performances(performances: NDArray[np.float32], agent_id: int) \
+    -> tuple[NDArray[np.float32], NDArray[np.float32]]:
+    '''
+    Takes individual performances for multiple bit strings
+    and returns own performance and mean of other agents'
+    performances
+
+    Args:
+        performances: ALTxP matrix of floats
+        agent_id
+    Returns:
+        ALTx1 array of own performances and
+        ALTx1 array of mean of others' performances
+
+    '''
+
+    perf_own = performances[:, agent_id]
+    perf_other = (np.sum(performances, axis=1) - perf_own) / (performances.shape[1] - 1)
+
+    return perf_own, perf_other

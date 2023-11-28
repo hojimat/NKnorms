@@ -132,7 +132,7 @@ def random_neighbour(vec,myid,n):
     vec[rnd] = 1- vec[rnd]
     return vec
 
-def get_1bit_deviations(bstring: NDArray, n: int, id_: int, num: int) -> NDArray:
+def get_1bit_deviations(bstring: NDArray[np.int8], n: int, id_: int, num: int) -> NDArray[np.int8]:
     """Generates `num` random binary vectors
     that are 1-bit away from a given bit string.
 
