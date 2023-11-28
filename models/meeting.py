@@ -17,21 +17,7 @@ class Meeting(ABC):
         self.nature = nature
         self.proposals: Optional[list[NDArray]] = None
         self.composites: Optional[list[NDArray]] = None
-        self.outcome: Optional[NDArray] = None
-
-    def screen(self, prop: int, method: str) -> NDArray:
-        '''
-        Ever agent must prepare to the meeting depending on the Meeting Type.
-        By default, every agent screens ALT 1-bit deviations to their current bitstrings
-        and picks top PROP proposals and brings them into the composition stage.
-        
-        In some meeting types this screening process may be random leaving the decision
-        to the further stages. Then this method will be overloaded in those meetings.
-
-        Returns:
-            A list of P (one for each agent) numpy arrays of size N*PROP
-        '''
-        
+        self.outcome: Optional[NDArray] = None        
 
     def compose(self, proposals: list[NDArray[np.int8]]) -> None:
         '''

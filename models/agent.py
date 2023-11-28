@@ -72,7 +72,7 @@ class Agent:
         self.nature.current_state[i*n:(i+1)*n] = self.current_state[i*n:(i+1)*n].copy()
         self.nature.current_soc[i] = self.phi_soc
 
-    def screen(self, alt: int, prop: int, method: str) -> NDArray[np.int8]:
+    def screen(self, alt:int, prop:int, random:bool=False) -> NDArray[np.int8]:
         '''
         Ever agent must prepare to the meeting depending on the Meeting Type.
         By default, every agent screens ALT 1-bit deviations to their current bitstrings
@@ -81,7 +81,7 @@ class Agent:
         Args:
             alt: number of alternatives to screen
             prop: number of proposals to choose from the alternatives
-            method: screening method (by utility, by performance, randomly)
+            method: screening method (utility, performance, random)
         Returns:
             numpy array of shape PROPxN
         '''
@@ -92,6 +92,12 @@ class Agent:
 
         # get alt 1bit deviations to the current bit string; shape=ALTx(N*P)
         alternatives = nk.get_1bit_deviations(self.current_state, self.n, self.id_, alt)
+
+        # if screening method is random, don't proceed further
+        # and just return the random PROPxN proposals
+        if random:
+            proposals = alternatives[:prop, start:end]
+            return proposals
 
         # calculate performance for every alternative; shape=ALTxP
         performances_all = np.apply_along_axis(self.nature.phi, axis=1, arr=alternatives)
