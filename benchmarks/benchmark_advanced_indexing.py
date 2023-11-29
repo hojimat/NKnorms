@@ -1,6 +1,6 @@
-'''
+"""
 We check the numpy's advanced indexing using ranges etc
-'''
+"""
 import numpy as np
 from .benchmarker import benchmark
 

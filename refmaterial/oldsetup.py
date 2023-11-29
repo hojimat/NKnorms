@@ -2,7 +2,7 @@ import numpy as np
 import NKPackage as nk
 
 class Organization:
-	''' Defines tasks, hires people; aggregation relation with Agent class '''
+	""" Defines tasks, hires people; aggregation relation with Agent class """
     def __init__(self,pop,n,npub,k,degree,t,th,tm):
         self.pop = pop
 		self.n = n
@@ -19,7 +19,7 @@ class Organization:
 			Agent(employer=self)
 
     def allocate_tasks(self):
-		''' in the future, firm can allocate tasks, at the moment agents have separate landscapes '''
+		""" in the future, firm can allocate tasks, at the moment agents have separate landscapes """
         pass
 
 	def form_cliques(self):
@@ -27,7 +27,7 @@ class Organization:
 		return clique
 
 	def play(self):
-		''' single pass through a lifetime '''
+		""" single pass through a lifetime """
 		for t in range(self.t):
 			if t==0: # initialize at the beginning
 				for agent in Agent.agents:
@@ -44,7 +44,7 @@ class Organization:
 
 
 class Agent:
-	''' Main player; works for Organization, adopts parameters from it '''
+	""" Main player; works for Organization, adopts parameters from it """
 	agents = [] # agents list, indexed from 0
     def __init__(self,employer):
 		# adopt variables from the organization; NOT inherit.
@@ -102,7 +102,7 @@ class Agent:
 		return	
 
 	def social_climb(self):
-		''' No modularity here is intentional, i.e. the code from solo_climb is repeated because writing a function for it does not save space --- all of the variables have to be assigned anyway. '''
+		""" No modularity here is intentional, i.e. the code from solo_climb is repeated because writing a function for it does not save space --- all of the variables have to be assigned anyway. """
 
 		pass
 
@@ -111,7 +111,7 @@ class Agent:
 
 
  
-'''
+"""
             if t > self.td + 100 and t > trnd + 100: # no interference before social interactions
                 if rnd is False: # active checking phase
                     if self.check_slope(t):
@@ -188,4 +188,4 @@ class Agent:
         if 1==1:#phi1 >= self.ubar*0.9:# and phi1 >= self.current_perf:
             self.current_state = tmp
         
-'''
+"""

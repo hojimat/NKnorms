@@ -1,4 +1,4 @@
-'''
+"""
 The file containing the architecture for the organization
 operating on NK framework with multiple interacting agents.
 
@@ -14,7 +14,7 @@ The code heavily relies on the satelite NKPackage for required utilities.
 
 Created by Ravshan S.K.
 I'm on Twitter @ravshansk
-'''
+"""
 from time import time, sleep
 import numpy as np
 from typing import List
@@ -22,7 +22,7 @@ from numpy.typing import NDArray
 import nkpack as nk
 
 class Nature:
-    '''Defines the performances, inputs state, outputs performance; a hidden class.'''
+    """Defines the performances, inputs state, outputs performance; a hidden class."""
     def __init__(self, **kwargs):
         # task environment (user input)
         self.p = kwargs['p'] # population / number of agents
@@ -57,12 +57,12 @@ class Nature:
             self._calculate_global_maximum()
 
     def create_players(self):
-        '''Spawn main players: 1 organization and P agents'''
+        """Spawn main players: 1 organization and P agents"""
         self.organization = Organization(nature=self)
         self.agents = [Agent(nature=self) for i in range(self.p)]
 
     def _phi(self, bstring: NDArray[np.int8]) -> NDArray[np.float32]:
-        '''
+        """
         Calculates individual performances of all agents
         for a given bitstring.
 
@@ -71,7 +71,7 @@ class Nature:
 
         Returns:
             P-sized vector with performances of a bitstring for P agents.
-        '''
+        """
 
         if len(bstring) != self.n * self.p:
             raise nk.InvalidBitstringError("Please enter the full bitstring.")
@@ -82,9 +82,9 @@ class Nature:
         return normalized_performances
 
     def _calculate_current_performances(self):
-        '''
+        """
         I THINK I CAN DELETE THIS
-        uses _phi to calculate current performances for all agents'''
+        uses _phi to calculate current performances for all agents"""
         # get latest state
         current_state = self.states[-1]
         tmp = self._phi(current_state)
@@ -93,14 +93,14 @@ class Nature:
         self.past_perf.append(output)
 
     def archive_state(self):
-        '''MOVE THIS FUNCTIONALITY SOMEWHEREarchives state'''
+        """MOVE THIS FUNCTIONALITY SOMEWHEREarchives state"""
         self.past_state.append(self.current_state.copy())
         self.past_sim.append(nk.similarity(self.current_state, self.p, self.n, self.nsoc))
         self.past_simb.append(nk.similarbits(self.current_state, self.p, self.n, self.nsoc))
 
 
     def _generate_interaction_matrix(self):
-        '''generates the NKCS interaction matrix'''
+        """generates the NKCS interaction matrix"""
         inmat = np.zeros((self.n * self.p, self.n * self.p), dtype=np.int8)
         
         if self.s > (self.p - 1):
@@ -125,19 +125,19 @@ class Nature:
         self.interaction_matrix = inmat
 
     def _generate_landscape(self):
-        '''generates the landscape given by the interaction matrix.'''
+        """generates the landscape given by the interaction matrix."""
         self.landscape = nk.generate_landscape(self.p, self.n, self.k, self.c, self.s, self.rho)
 
     def _calculate_global_maximum(self):
-        '''
+        """
         !!! WARNING: The most processing-heavy part of the project !!!
 
         Calculates global maximum for normalization. Set lazy=True to skip.
-        '''
+        """
         self.globalmax = nk.get_globalmax(self.interaction_matrix, self.landscape, self.n, self.p)
 
 class Organization:
-    ''' Defines tasks, hires people; aggregation relation with Agent class.'''
+    """ Defines tasks, hires people; aggregation relation with Agent class."""
     def __init__(self, nature):
         # environment and user-input params:
         self.nature = nature
@@ -149,19 +149,19 @@ class Organization:
         self.synchronies = np.empty(nature.t, dtype=np.float32) # synchrony measures history
 
     def form_networks(self):
-        '''Generates the network structure for agents to communicate;
+        """Generates the network structure for agents to communicate;
         it can be argued that a firm has the means to do that,
-        e.g. through hiring, defining interfaces etc.'''
+        e.g. through hiring, defining interfaces etc."""
         peers_list = nk.generate_network(self.p, self.nature.degree, self.nature.xi, self.nature.net)
         for peers, agent in zip(peers_list, self.agents):
             agent.peers = peers
 
     def observe_outcomes(self,tt):
-        '''Receives performance report from the Nature'''
+        """Receives performance report from the Nature"""
         self.perf_hist[tt] = self.nature.current_perf.mean()
 
     def initialize(self):
-        '''Initializes the simulation'''
+        """Initializes the simulation"""
         for agent in self.agents:
             agent.initialize()
             agent.report_state()
@@ -173,7 +173,7 @@ class Organization:
         self.nature.archive_state()
 
     def play(self):
-        '''The central method. Runs the lifetime simulation of the organization.'''
+        """The central method. Runs the lifetime simulation of the organization."""
         self.initialize()
         for t in range(1,self.t):
             # check if the period is active under schism (ignore for goal programing):
@@ -201,7 +201,7 @@ class Organization:
             self.nature.archive_state()
 
 class Agent:
-    ''' Decides on tasks, interacts with peers; aggregation relation with Organization class.'''
+    """ Decides on tasks, interacts with peers; aggregation relation with Organization class."""
     def __init__(self, nature):
         # adopt variables from the organization; not an inheritance.
         self.id = len(nature.agents)
@@ -218,13 +218,13 @@ class Agent:
         self.peers = [] # agents this agent talks with in a network
 
     def initialize(self):
-        '''Initializes agent after creation'''
+        """Initializes agent after creation"""
         self.current_perf = self.nature.phi(None, self.current_state)
         self.current_util = self.current_perf
         #self.current_betas[0,0] += 1
 
     def perform_climb(self,lrn=False,soc=False):
-        '''The central method. Contains the main decision process of the agent'''
+        """The central method. Contains the main decision process of the agent"""
         # get attributes as local variables
         w = self.w.copy()
         wf = self.wf.copy()
@@ -270,7 +270,7 @@ class Agent:
         #self.current_betas[idx1,int(phi1<phi0)] += 1
 
     def share_soc(self,tt):
-        '''shares social bits with agents in a clique'''
+        """shares social bits with agents in a clique"""
         # get own social bits
         idd = self.id
         n = self.n
@@ -295,20 +295,20 @@ class Agent:
 
 
     def forget_soc(self,tt):
-        '''forgets social bits'''
+        """forgets social bits"""
         tm = self.tm
         sadd = self.nsoc_added
         if tt >= tm:
             self.soc_memory = self.soc_memory[sadd[tt-tm]:,:]
 
     def observe_state(self):
-        '''observes the current bitstring choice by everyone'''
+        """observes the current bitstring choice by everyone"""
         self.current_state = self.nature.current_state.copy()
         self.current_perf = self.nature.current_perf
 
 
     def report_state(self):
-        '''reports state to nature'''
+        """reports state to nature"""
         n = self.n
         i = self.id
         self.nature.current_state[i*n:(i+1)*n] = self.current_state[i*n:(i+1)*n].copy()

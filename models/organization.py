@@ -1,4 +1,4 @@
-'''CEO defintion'''
+"""CEO defintion"""
 from __future__ import annotations
 from typing import TYPE_CHECKING
 import numpy as np
@@ -9,13 +9,13 @@ if TYPE_CHECKING:
     from .agent import Agent
 
 class Organization:
-    '''
+    """
     Organization class defines tasks, hires people;
     has aggregation relation with Agent class;
     organizes meetings;
 
     It stores performance and synchrony histories obtained from Nature.
-    '''
+    """
     def __init__(self, n:int, p:int, nature: Nature):
         # environment and user-input params:
         self.nature = nature
@@ -28,12 +28,12 @@ class Organization:
         self.synchronies = np.empty(nature.t, dtype=np.float32) # synchrony measures history
 
     def form_networks(self) -> None:
-        '''
+        """
         Generates the network structure for agents to communicate;
         it can be argued that a firm has the means to do that,
         e.g. through hiring, defining interfaces etc.
         
-        '''
+        """
         if self.agents is None:
             raise nk.UninitializedError("Agents are not initialized yet.")
 
@@ -43,19 +43,19 @@ class Organization:
             agent.peers = peers
 
     def plan_meetings(self) -> None:
-        '''
+        """
         Generates the meeting structure to make decisions
         at each step; it can be argued that a firm
         has the means to do that, e.g. through organization design etc.
         
-        '''
+        """
         if self.agents is None:
             raise nk.UninitializedError("Agents are not initialized yet.")
 
         
 
     def play(self):
-        '''THIS MOVES TO NATURE The central method. Runs the lifetime simulation of the organization.'''
+        """THIS MOVES TO NATURE The central method. Runs the lifetime simulation of the organization."""
         self.initialize()
         for t in range(1,self.t):
             # check if the period is active under schism (ignore for goal programing):
@@ -83,5 +83,5 @@ class Organization:
             self.nature.archive_state()
 
     def observe_outcomes(self,tt):
-        '''Receives performance report from the Nature'''
+        """Receives performance report from the Nature"""
         self.perf_hist[tt] = self.nature.current_perf.mean()

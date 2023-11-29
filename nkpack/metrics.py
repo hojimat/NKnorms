@@ -112,7 +112,7 @@ def beta_mean(x,y):
 
 def decompose_performances(performances: NDArray[np.float32], agent_id: int) \
     -> tuple[NDArray[np.float32], NDArray[np.float32]]:
-    '''
+    """
     Takes individual performances for multiple bit strings
     and returns own performance and mean of other agents'
     performances
@@ -124,7 +124,7 @@ def decompose_performances(performances: NDArray[np.float32], agent_id: int) \
         ALTx1 array of own performances and
         ALTx1 array of mean of others' performances
 
-    '''
+    """
 
     perf_own = performances[:, agent_id]
     perf_other = (np.sum(performances, axis=1) - perf_own) / (performances.shape[1] - 1)

@@ -2,7 +2,7 @@ pass nature, firm, agent by reference if possible
 
 
     def phi(self, myid, x, eps=0.0):
-        '''inputs bitstring, outputs performance'''
+        """inputs bitstring, outputs performance"""
         n = self.n
         imat = self.interaction_matrix
         cmat = self.landscape

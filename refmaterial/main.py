@@ -1,12 +1,12 @@
 from setup import Organization, Agent
 from matplotlib import pyplot as plt
 
-'''
+"""
 Syntax guidelines:
 	- attributes and variables are lowercase
 	- constants are UPPERCASE
 	- don't use camelCase
-'''
+"""
 
 P = 5
 N = 4

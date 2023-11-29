@@ -1,4 +1,4 @@
-'''Employee defintion'''
+"""Employee defintion"""
 from __future__ import annotations
 from typing import TYPE_CHECKING, Optional
 import numpy as np
@@ -8,7 +8,7 @@ if TYPE_CHECKING:
     from .nature import Nature
 
 class Agent:
-    ''' Decides on tasks, interacts with peers; aggregation relation with Organization class.'''
+    """ Decides on tasks, interacts with peers; aggregation relation with Organization class."""
     def __init__(self, id_:int, n:int, p:int, nsoc:int, deg:int, tm:int, w:float, wf:float, nature:Nature):
         # adopt variables from the organization; not an inheritance.
         self.id_ = id_
@@ -31,11 +31,11 @@ class Agent:
         self.peers : list[Agent] = None # agents, that this agent talks with in a network
 
     def publish_social_bits(self) -> None:
-        '''
+        """
         Shares social bits with agents connected in a network
         via invoking their receive() method
 
-        '''
+        """
         start = self.id_ * self.n
         end = start + self.nsoc
         current_social_bits = self.current_state[start:end]
@@ -44,10 +44,10 @@ class Agent:
             peer.receive_social_bits(current_social_bits)
 
     def receive_social_bits(self, received_bits:NDArray[np.int8]) -> None:
-        '''
+        """
         Collects social bits to a temporary list, and if it contains
         DEG elements, appends it into the most recent row in the memory
-        '''
+        """
         # add received bits to the temporary buffer
         self._current_received_bits.append(received_bits)
 
@@ -61,19 +61,19 @@ class Agent:
             self._current_received_bits.clear()
 
     def observe_state(self):
-        '''observes the current bitstring choice by everyone'''
+        """observes the current bitstring choice by everyone"""
         self.current_state = self.nature.current_state.copy()
         self._current_performance = self.nature.current_perf
 
     def report_state(self):
-        '''reports state to nature'''
+        """reports state to nature"""
         n = self.n
         i = self.id
         self.nature.current_state[i*n:(i+1)*n] = self.current_state[i*n:(i+1)*n].copy()
         self.nature.current_soc[i] = self.phi_soc
 
     def screen(self, alt:int, prop:int, random:bool=False) -> NDArray[np.int8]:
-        '''
+        """
         Ever agent must prepare to the meeting depending on the Meeting Type.
         By default, every agent screens ALT 1-bit deviations to their current bitstrings
         and picks top PROP proposals and brings them into the composition stage.
@@ -84,7 +84,7 @@ class Agent:
             method: screening method (utility, performance, random)
         Returns:
             numpy array of shape PROPxN
-        '''
+        """
         # define important indices
         start = self.id_ * self.n
         end_soc = start + self.nsoc

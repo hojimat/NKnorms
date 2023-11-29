@@ -4,12 +4,12 @@ from matplotlib import pyplot as plt
 import progressbar
 from math import sqrt
 
-'''
+"""
 Syntax guidelines:
 	- attributes and variables are lowercase
 	- constants are UPPERCASE
 	- don't use camelCase
-'''
+"""
 
 POP = 6
 N = 4

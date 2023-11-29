@@ -1,4 +1,4 @@
-'''
+"""
 The file containing the architecture for the organization
 operating on NK framework with multiple interacting agents.
 
@@ -14,13 +14,13 @@ The code heavily relies on the satelite NKPackage for required utilities.
 
 Created by Ravshan S.K.
 I'm on Twitter @ravshansk
-'''
+"""
 import numpy as np
 import nkpack as nk
 from time import time,sleep
 
 class Organization:
-    ''' Defines tasks, hires people; aggregation relation with Agent class.'''
+    """ Defines tasks, hires people; aggregation relation with Agent class."""
     def __init__(self, **kwargs):
         self.p = kwargs['p'] # population
         self.n = kwargs['n'] # number of tasks per agent
@@ -42,21 +42,21 @@ class Organization:
         self.perf_hist = np.zeros(t,dtype=float) # performance history storage
     
     def define_tasks(self):
-        '''Creates the Nature with given parameters'''
+        """Creates the Nature with given parameters"""
         nature = Nature(p=self.p,n=self.n,k=self.k,c=self.c,s=self.s,t=self.t,rho=self.rho,nsoc=self.nsoc,gmax=self.gmax)
         nature.set_interactions()
         nature.set_landscapes() # !!! processing heavy !!!
         self.nature = nature
 
     def hire_people(self):
-        '''Creates the Agents and stores them'''
+        """Creates the Agents and stores them"""
         for i in range(self.p):
             self.agents.append(Agent(employer=self))
 
     def form_cliques(self):
-        '''Generates the network structure for agents to communicate;
+        """Generates the network structure for agents to communicate;
         it can be argued that a firm has the means to do that,
-        e.g. through hiring,communication tools etc.''' 
+        e.g. through hiring,communication tools etc.""" 
         p = self.p
         degree = self.degree
         xi = self.xi
@@ -67,11 +67,11 @@ class Organization:
             a.clique = c
 
     def observe_outcomes(self,tt):
-        '''Receives performance report from the Nature'''
+        """Receives performance report from the Nature"""
         self.perf_hist[tt] = self.nature.current_perf.mean()
 
     def initialize(self):
-        '''Initializes the simulation'''
+        """Initializes the simulation"""
         for agent in self.agents:
             agent.initialize()
             agent.report_state()
@@ -83,7 +83,7 @@ class Organization:
         self.nature.archive_state()
 
     def play(self):
-        '''The central method. Runs the lifetime simulation of the organization.'''
+        """The central method. Runs the lifetime simulation of the organization."""
         self.initialize()
         for t in range(1,self.t):
             # check if the period is active under schism (ignore for goal programing):
@@ -111,7 +111,7 @@ class Organization:
             self.nature.archive_state()
 
 class Agent:
-    ''' Decides on tasks, interacts with peers; aggregation relation with Organization class.'''
+    """ Decides on tasks, interacts with peers; aggregation relation with Organization class."""
     def __init__(self,employer):
         # adopt variables from the organization; not an inheritance.
         self.id = len(employer.agents)
@@ -142,13 +142,13 @@ class Agent:
         self.clique = [] # reference to agents in the network
 
     def initialize(self):
-        '''Initializes agent after creation'''
+        """Initializes agent after creation"""
         self.current_perf = self.nature.phi(None, self.current_state)
         self.current_util = self.current_perf
         #self.current_betas[0,0] += 1
 
     def perform_climb(self,lrn=False,soc=False):
-        '''The central method. Contains the main decision process of the agent'''
+        """The central method. Contains the main decision process of the agent"""
         # get attributes as local variables
         w = self.w.copy()
         wf = self.wf.copy()
@@ -201,7 +201,7 @@ class Agent:
         #self.current_betas[idx1,int(phi1<phi0)] += 1
 
     def share_soc(self,tt):
-        '''shares social bits with agents in a clique'''
+        """shares social bits with agents in a clique"""
         # get own social bits
         idd = self.id
         n = self.n
@@ -226,27 +226,27 @@ class Agent:
 
 
     def forget_soc(self,tt):
-        '''forgets social bits'''
+        """forgets social bits"""
         tm = self.tm
         sadd = self.nsoc_added
         if tt >= tm:
             self.soc_memory = self.soc_memory[sadd[tt-tm]:,:]
 
     def observe_state(self):
-        '''observes the current bitstring choice by everyone'''
+        """observes the current bitstring choice by everyone"""
         self.current_state = self.nature.current_state.copy()
         self.current_perf = self.nature.current_perf
 
 
     def report_state(self):
-        '''reports state to nature'''
+        """reports state to nature"""
         n = self.n
         i = self.id
         self.nature.current_state[i*n:(i+1)*n] = self.current_state[i*n:(i+1)*n].copy()
         self.nature.current_soc[i] = self.phi_soc
 
 class Nature:
-    '''Defines the performances, inputs state, outputs performance; a hidden class.'''
+    """Defines the performances, inputs state, outputs performance; a hidden class."""
     def __init__(self,p,n,k,c,s,t,rho,nsoc,gmax):
         self.p = p
         self.n = n
@@ -271,7 +271,7 @@ class Nature:
         self.past_simb = []
 
     def set_interactions(self):
-        '''sets interaction matrices'''
+        """sets interaction matrices"""
         p = self.p
         n = self.n
         k = self.k
@@ -298,7 +298,7 @@ class Nature:
         self.inmat = tmp
 
     def set_landscapes(self):
-        '''sets landscapes; set gmax=False to skip calculating global maximum'''
+        """sets landscapes; set gmax=False to skip calculating global maximum"""
         p = self.p
         n = self.n
         k = self.k
@@ -312,7 +312,7 @@ class Nature:
             self.globalmax = nk.get_globalmax(self.inmat,contrib,n,p) # !!! processing heavy !!!
             
     def phi(self,myid,x,eps=0.0):
-        '''inputs bitstring, outputs performance; set gmax=False to skip calculating global maximum'''
+        """inputs bitstring, outputs performance; set gmax=False to skip calculating global maximum"""
         n = self.n
         p = self.p
         n_p = n*p
@@ -334,7 +334,7 @@ class Nature:
         return output
 
     def calculate_perf(self):
-        '''uses phi to calculate current performance'''
+        """uses phi to calculate current performance"""
         tmp = self.phi(myid=None,x=self.current_state.copy())
         self.current_perf = tmp
         output = tmp
@@ -342,7 +342,7 @@ class Nature:
         return output
 
     def archive_state(self):
-        '''archives state'''
+        """archives state"""
         self.past_state.append(self.current_state.copy())
         self.past_sim.append(nk.similarity(self.current_state, self.p, self.n, self.nsoc))
         self.past_simb.append(nk.similarbits(self.current_state, self.p, self.n, self.nsoc))
