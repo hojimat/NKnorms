@@ -143,7 +143,7 @@ def get_1bit_deviations(bstring: NDArray[np.int8], n: int, id_: int, num: int) -
         num: Number of neighbor bit strings you want
 
     Returns:
-        A numpy array with num rows of size N*P each, for which exactly 1 bit
+        A numpy array with NUM rows of size N*P each, for which exactly 1 bit
         corresponding to Agent id_ is flipped.
     """
     if num > n:

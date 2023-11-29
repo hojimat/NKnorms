@@ -2,6 +2,8 @@ from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 import numpy as np
 from numpy.typing import NDArray
+if TYPE_CHECKING:
+    from .nature import Nature
 
 class Meeting(ABC):
     """
@@ -11,21 +13,30 @@ class Meeting(ABC):
 
     """
     
-    def __init__(self, n:int, p:int, prop:int, comp:int):
+    def __init__(self, n:int, p:int, alt:int, prop:int, comp:int, nature:Nature):
         self.n = n
         self.p = p
+        self.alt = alt
         self.prop = prop
         self.comp = comp
-        self.proposals: list[NDArray[np.int8]] = None
+        self.nature = nature
+        self.random = False
+        self.final = False
+        self.proposals: NDArray[np.int8] = None
         self.composites: NDArray[np.int8] = None
         self.outcome: NDArray[np.int8] = None
 
-    def screen(self, agents) -> None:
+    def screen(self) -> None:
         """
-        For every agent run agent.screen(by='utility') option
+        For every agent run agent.screen()
         """
-        for agent in agents:
-            agent.screen()
+        proposals = []
+        for agent in self.nature.agents:
+            proposal = agent.screen(self.alt, self.prop, self.random, self.final)
+            proposals.append(proposal)
+
+        self.proposals = np.array(proposals, dtype=np.int8)
+
 
     def compose(self) -> None:
         """
@@ -44,14 +55,13 @@ class Meeting(ABC):
                 [[1,1],[0,1]]  --->  [0,0,1,1]
 
         """
-        proposals = np.array(self.proposals, dtype=np.int8)
 
         # pick COMP random integers
         random_picks = np.random.choice(self.prop**self.p, self.comp)
         # convert the integers into triplet indices (x,y,z)
         picked_indices = [np.unravel_index(i, [prop]*p) for i in random_picks]
         # composite:
-        composites = [ proposals[np.arange(self.p),index_,:].reshape(-1) for index_ in picked_indices ]
+        composites = [ self.proposals[np.arange(self.p),index_,:].reshape(-1) for index_ in picked_indices ]
         
         self.composites = np.array(composites, dtype=np.int8)
 
@@ -85,12 +95,25 @@ class LateralMeeting(Meeting):
     and output is written to self.outcome
 
     """
-    def screen(self, agents);
-        for agent in agents:
-            agent.screen(random=True)
+    def __init__(self, n:int, p:int, nature:Nature):
+        super().__init__(n=n, p=p, alt=2, prop=1, comp=1, nature=nature)
+        self.random = True
 
     def decide(self):
-        pass
+        """Composites are put to vote one by one until consensus is reached"""
+        
+        for composite in self.composites:
+            # for each agent calculate utility of a composite and get current utility
+            new_utilities = np.array([agent.calculate_utility(composite) for agent in self.nature.agents])
+            old_utilities = np.array([agent.current_utility for agent in self.nature.agents])
+            # vote True if decides to climb up
+            votes = (new_utilities >= old_utilities)
+            # if voted unanimously, climb up and end the loop
+            if votes.all():            
+                self.outcome = composite
+                break
+
+
 
 class DecentralizedMeeting(Meeting):
     """
@@ -102,8 +125,14 @@ class DecentralizedMeeting(Meeting):
 
     """
 
-    def __init__(self, n:int, p:int):
-        super().__init__(n=n, p=p, prop=1, comp=1)
+    def __init__(self, n:int, p:int, nature:Nature):
+        super().__init__(n=n, p=p, alt=2, prop=1, comp=1, nature=nature)
+        self.final = True
 
     def decide(self):
+        """
+        Every agent independently decides to climb up or not.
+        No vote happens, everybody simply picks his own proposal
+        """
+
         self.outcome = self.composites[0, :]

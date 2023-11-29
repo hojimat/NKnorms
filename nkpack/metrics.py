@@ -118,11 +118,11 @@ def decompose_performances(performances: NDArray[np.float32], agent_id: int) \
     performances
 
     Args:
-        performances: ALTxP matrix of floats
+        performances: AnyxP matrix of floats
         agent_id
     Returns:
-        ALTx1 array of own performances and
-        ALTx1 array of mean of others' performances
+        Anyx1 array of own performances and
+        Anyx1 array of mean of others' performances
 
     """
 

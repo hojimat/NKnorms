@@ -40,9 +40,9 @@ class Nature:
         # history
         self.t = kwargs['t'] # lifespan of the organization
         # players
-        self.organization: Optional[Organization] = None # reference to the Organization
-        self.agents: Optional[list[Agent]] = None # reference to the Agents
-        self.landscape: Optional[Landscape] = None # reference to the Landscape
+        self.organization: Organization = None # reference to the Organization
+        self.agents: list[Agent] = None # reference to the Agents
+        self.landscape: Landscape = None # reference to the Landscape
 
     def create_environment(self):
         """Creates the task environment."""
