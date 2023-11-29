@@ -42,6 +42,18 @@ class Organization:
         for peers, agent in zip(peers_list, self.agents):
             agent.peers = peers
 
+    def plan_meetings(self) -> None:
+        '''
+        Generates the meeting structure to make decisions
+        at each step; it can be argued that a firm
+        has the means to do that, e.g. through organization design etc.
+        
+        '''
+        if self.agents is None:
+            raise nk.UninitializedError("Agents are not initialized yet.")
+
+        
+
     def play(self):
         '''THIS MOVES TO NATURE The central method. Runs the lifetime simulation of the organization.'''
         self.initialize()

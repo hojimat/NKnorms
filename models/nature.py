@@ -65,7 +65,8 @@ class Nature:
     def create_players(self):
         '''Spawn main players: 1 organization and P agents'''
         self.organization = Organization(n=self.n, p=self.p, nature=self)
-        self.agents = [Agent(id_=i,n=self.n,p=self.p,nsoc=self.nsoc,degree=self.degree,tm=self.tm,nature=self) for i in range(self.p)]
+        self.agents = \
+            [Agent(i, self.n, self.p, self.nsoc, self.degree, self.tm, self.w, self.wf, self) for i in range(self.p)]
         self.organization.agents = self.agents
 
     def initialize(self):

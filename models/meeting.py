@@ -3,8 +3,6 @@ from typing import TYPE_CHECKING, Optional
 import itertools
 import numpy as np
 from numpy.typing import NDArray
-if TYPE_CHECKING:
-    from .nature import Nature
 
 class Meeting(ABC):
     '''
@@ -14,15 +12,21 @@ class Meeting(ABC):
 
     '''
     
-    def __init__(self, n:int, p:int, prop:int, comp:int, nature:Nature):
+    def __init__(self, n:int, p:int, prop:int, comp:int):
         self.n = n
         self.p = p
         self.prop = prop
         self.comp = comp
-        self.nature = nature
         self.proposals: list[NDArray[np.int8]] = None
         self.composites: NDArray[np.int8] = None
         self.outcome: NDArray[np.int8] = None
+
+    def screen(self, agents) -> None:
+        '''
+        For every agent run agent.screen(by='utility') option
+        '''
+        for agent in agents:
+            agent.screen()
 
     def compose(self) -> None:
         '''
@@ -52,7 +56,6 @@ class Meeting(ABC):
         
         self.composites = np.array(composites, dtype=np.int8)
 
-
     @abstractmethod
     def decide(self):
         '''
@@ -66,8 +69,8 @@ class HierarchicalMeeting(Meeting):
     The hierarchical coordination:
     1) agents screen their proposals
     2) meeting host creates composites of their proposals
-    3) organization CEO chooses the best solution according to goal programming
-    4) output is written to self.outcome
+    3) organization CEO chooses the best solution according to goal programming,
+    and output is written to self.outcome
 
     '''
 
@@ -79,10 +82,13 @@ class LateralMeeting(Meeting):
     The lateral communication:
     1) agents randomly come up with the proposals
     2) meeting host creates composites of their proposals
-    3) agents vote/veto the solutions in a random order
-    4) output is written to self.outcome
+    3) agents vote/veto the solutions in a random order,
+    and output is written to self.outcome
 
     '''
+    def screen(self, agents);
+        for agent in agents:
+            agent.screen(random=True)
 
     def decide(self):
         pass
@@ -92,14 +98,13 @@ class DecentralizedMeeting(Meeting):
     The decentralized structure:
     1) agents screen their proposals and propose 1 bistring
     2) meeting host creates composites of their proposals
-    3) agents vote for their own 1 bitstring (kinda redundant)
-    4) output is written to self.outcome
+    3) agents vote for their own 1 bitstring (kinda redundant),
+    and output is written to self.outcome
 
     '''
 
-    def __init__(self, n:int, p:int, nature:Nature):
-        super().__init__(n=n, p=p, prop=1, comp=1, nature=nature)
-
+    def __init__(self, n:int, p:int):
+        super().__init__(n=n, p=p, prop=1, comp=1)
 
     def decide(self):
-        pass
+        self.outcome = self.composites[0, :]
