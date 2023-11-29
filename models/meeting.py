@@ -22,33 +22,37 @@ class Meeting(ABC):
         self.nature = nature
         self.proposals: list[NDArray[np.int8]] = None
         self.composites: NDArray[np.int8] = None
-        self.outcome: NDArray = None        
+        self.outcome: NDArray[np.int8] = None
 
-    def compose(self, proposals: list[NDArray[np.int8]]) -> None:
+    def compose(self) -> None:
         '''
         Once the proposals are made, the meeting host creates
         COMP number of compositions or N-sized bitstring combinations
         to get N*P-sized full bitstrings
 
         Args:
-            proposals: list of P (one for each agent) numpy arrays of size PROPxN
+            proposals: numpy array of size PxPROPxN
         
         Returns (saves to self.composites):
             Numpy array of size COMPx(N*P), randomly combined from the input list's elements
 
         Examples:
-            [np.array([[1,0],[0,0]]), np.array([[1,1],[0,1]])] -> np.array([[1,0,1,1], [0,0,1,1]])
+                [[1,0],[0,0]], --->  [1,0,1,1],
+                [[1,1],[0,1]]  --->  [0,0,1,1]
 
         '''
-        # first, generate all random combinations of P numpy arrays in a list:
-        all_indices = itertools.product(range(self.prop), repeat=self.p)
-        # before initalizing the iterator, randomly pick COMP indices
-        sampled_indices = np.random.choice(self.prop**self.p, self.comp)
-        # get the combination indices:
-        picked_indices = [indices for i,indices in enumerate(all_indices) if i in sampled_indices]
+        proposals = np.array(self.proposals, dtype=np.int8)
 
-        [proposal]
+        # pick COMP random integers
+        random_picks = np.random.choice(self.prop**self.p, self.comp)
+        # convert the integers into triplet indices (x,y,z)
+        picked_indices = [np.unravel_index(i, [prop]*p) for i in random_picks]
+        # composite:
+        composites = [ proposals[np.arange(self.p),index_,:].reshape(-1) for index_ in picked_indices ]
         
+        self.composites = np.array(composites, dtype=np.int8)
+
+
     @abstractmethod
     def decide(self):
         '''
@@ -64,7 +68,11 @@ class HierarchicalMeeting(Meeting):
     2) meeting host creates composites of their proposals
     3) organization CEO chooses the best solution according to goal programming
     4) output is written to self.outcome
+
     '''
+
+    def decide(self):
+        pass
 
 class LateralMeeting(Meeting):
     '''
@@ -73,7 +81,11 @@ class LateralMeeting(Meeting):
     2) meeting host creates composites of their proposals
     3) agents vote/veto the solutions in a random order
     4) output is written to self.outcome
+
     '''
+
+    def decide(self):
+        pass
 
 class DecentralizedMeeting(Meeting):
     '''
@@ -82,4 +94,12 @@ class DecentralizedMeeting(Meeting):
     2) meeting host creates composites of their proposals
     3) agents vote for their own 1 bitstring (kinda redundant)
     4) output is written to self.outcome
+
     '''
+
+    def __init__(self, n:int, p:int, nature:Nature):
+        super().__init__(n=n, p=p, prop=1, comp=1, nature=nature)
+
+
+    def decide(self):
+        pass
