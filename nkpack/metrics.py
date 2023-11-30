@@ -52,25 +52,28 @@ def weighted(x,y,p1,p2):
     output = tmp
     return output
 
-def goal_prog(perf1,perf2,u,p1,p2):
-    """A goal programming
+def gp_score(perfs: NDArray[np.float32], goals: NDArray[np.float32], weights: NDArray[np.float32]) -> float:
+    """
+    Calculates Goal Programming Objective function value (score)
+    for given weights, goals, and performances of interest.
 
     Args:
-        perf1 (float): first performance
-        perf2 (float): second performance
-        u (list): goals
-        p1 (float): first weigh
-        p2 (float): second weight
+        perfs: performances for each goal; shape=1D
+        goals: goals themselves; shape=1D
+        weights: weights for each goal; shape=1D
 
     Returns:
-        float: A GP output
+        A float value for the GP score
+        
     """
-
-    d1 = np.max((u[0]-perf1,0))
-    d2 = np.max((u[1]-perf2,0))
-    tmp = p1*d1 + p2*d2
-    output = -tmp
-    return output
+    
+    deviations = np.maximum(goals-perfs, 0)
+    score = np.dot(weights, deviations)
+    
+    # negative because zero is the best case scenario
+    # the less deviations, the better,
+    # so we minimize the score actually
+    return -score
 
 def calculate_frequency(bstring: NDArray[np.int8], lookup_table: NDArray[np.int8]) -> float:
     """

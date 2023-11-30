@@ -49,17 +49,17 @@ class Organization:
             agent.peers = peers
 
     
-    def calculate_goals(self, bstring: NDArray[np.int8]):
+    def calculate_goals(self, bstrings: NDArray[np.int8]) -> NDArray[np.float32]:
         """
-        Calculates the satisfaction of two goals: 
-        overall performance and synchrony.
+        Uses goal programming to calculate the satisfaction
+        of two goals: overall performance and synchrony.
 
         Args:
-
+            bstring: An array with 1 bitstring per row; shape=(Any)x(N*P) 
         Returns:
-            Saves to self.goals
-
+            An array with Any float values for overall goal satisfaction; shape=(Any)x1
         """
+        
 
     def plan_meetings(self) -> None:
         """

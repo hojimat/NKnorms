@@ -119,6 +119,8 @@ class DecentralizedMeeting(Meeting):
     """
     The decentralized structure:
     1) agents screen their proposals and propose 1 bistring
+    already having compared it to the status quo and chosen
+    the highest
     2) meeting host creates composites of their proposals
     3) agents vote for their own 1 bitstring (kinda redundant),
     and output is written to self.outcome
