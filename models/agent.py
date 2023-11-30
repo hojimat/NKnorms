@@ -6,14 +6,15 @@ from numpy.typing import NDArray
 import nkpack as nk
 if TYPE_CHECKING:
     from .nature import Nature
+    from .organization import Organization
 
 class Agent:
     """ Decides on tasks, interacts with peers; aggregation relation with Organization class."""
     def __init__(self, id_:int, n:int, p:int, nsoc:int, deg:int, tm:int, w:float, wf:float, nature:Nature):
         # adopt variables from the organization; not an inheritance.
         self.id_ = id_
-        self.nature = nature
-        self.organization = nature.organization
+        self.nature: Nature = nature
+        self.organization: Organization = None
         self.n = n
         self.p = p
         self.nsoc = nsoc

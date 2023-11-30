@@ -27,6 +27,12 @@ class Organization:
         self.performances = np.empty((nature.t, nature.p), dtype=np.float32) # agents' performances 
         self.synchronies = np.empty(nature.t, dtype=np.float32) # synchrony measures history
 
+    def hire_agents(self, agents: list[Agent]) -> None:
+        """Hires people by storing a reference to them"""
+        self.agents = agents
+        for agent in agents:
+            agent.organization = self
+
     def form_networks(self) -> None:
         """
         Generates the network structure for agents to communicate;
@@ -42,6 +48,19 @@ class Organization:
         for peers, agent in zip(peers_list, self.agents):
             agent.peers = peers
 
+    
+    def calculate_goals(self, bstring: NDArray[np.int8]):
+        """
+        Calculates the satisfaction of two goals: 
+        overall performance and synchrony.
+
+        Args:
+
+        Returns:
+            Saves to self.goals
+
+        """
+
     def plan_meetings(self) -> None:
         """
         Generates the meeting structure to make decisions
@@ -51,36 +70,6 @@ class Organization:
         """
         if self.agents is None:
             raise nk.UninitializedError("Agents are not initialized yet.")
-
-        
-
-    def play(self):
-        """THIS MOVES TO NATURE The central method. Runs the lifetime simulation of the organization."""
-        self.initialize()
-        for t in range(1,self.t):
-            # check if the period is active under schism (ignore for goal programing):
-            social = True if t in [z for z in range(self.t) if int(z/self.ts)%2==1] else False
-            # at exactly t==TM, the memory fills (training ends) and climbing is done from scratch
-            if t==self.tm:
-                for agent in self.agents:
-                    agent.current_state = np.random.choice(2,agent.n*agent.p)
-            # every agent performs a climb and reports the state:
-            for agent in self.agents:
-                agent.perform_climb(soc=social)
-                agent.report_state()
-            # nature observes the reported state and calculates the performances
-            self.nature.calculate_perf()
-            # firm observes the outcomes
-            self.observe_outcomes(t)
-            # agents forget old social norms
-            for agent in self.agents:
-                agent.forget_soc(t)
-            # agents share social norms and observe the realized state
-            for agent in self.agents:
-                agent.publish_social_bits(t)
-                agent.observe_state()
-            # nature archives the state 
-            self.nature.archive_state()
 
     def observe_outcomes(self,tt):
         """Receives performance report from the Nature"""

@@ -52,9 +52,8 @@ class Nature:
         """Spawn main players: 1 organization and P agents"""
         
         self.organization = Organization(n=self.n, p=self.p, nature=self)
-        self.agents = \
-            [Agent(i, self.n, self.p, self.nsoc, self.degree, self.tm, self.w, self.wf, self) for i in range(self.p)]
-        self.organization.agents = self.agents
+        params = (self.n, self.p, self.nsoc, self.degree, self.tm, self.w, self.wf, self)
+        self.agents = [Agent(i, *params) for i in range(self.p)]
 
     def initialize(self):
         """Initializes the parameters for the 0th step of the simulation."""
@@ -62,6 +61,9 @@ class Nature:
         # check for errors
         if (self.agents is None) or (self.organization is None) or (self.landscape is None):
             raise nk.UninitializedError("Instantiate Agents, Organization, Landscape before using them.")
+
+        # associate free-roaming agents with the organization
+        self.organization.hire_agents(self.agents)
 
         # form networks through which agents will each have peers to communicate with
         self.organization.form_networks()
@@ -90,7 +92,33 @@ class Nature:
         """
         This function contains the main loop of the world. It iterates
         the world from one time step to the next. 
+        TODO: heavy changes here
         """
+        self.initialize()
+        for t in range(1,self.t):
+            # at exactly t==TM, the memory fills (training ends) and climbing is done from scratch
+            # NOTE: that is stupid
+            if t==self.tm:
+                for agent in self.agents:
+                    agent.current_state = np.random.choice(2,agent.n*agent.p)
+            # every agent performs a climb and reports the state:
+            for agent in self.agents:
+                agent.perform_climb(soc=social)
+                agent.report_state()
+            # nature observes the reported state and calculates the performances
+            self.nature.calculate_perf()
+            # firm observes the outcomes
+            self.observe_outcomes(t)
+            # agents forget old social norms
+            for agent in self.agents:
+                agent.forget_soc(t)
+            # agents share social norms and observe the realized state
+            for agent in self.agents:
+                agent.publish_social_bits(t)
+                agent.observe_state()
+            # nature archives the state 
+            self.archive_state()
+
 
     def _archive_state(self):
         """MOVE THIS FUNCTIONALITY SOMEWHEREarchives state"""
