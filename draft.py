@@ -1,9 +1,13 @@
-from numpy.typing import NDArray
+from __future__ import annotations
 
-def hel(a:int, b:str) -> str:
-    return a+b
+class My:
+    pass
 
-x:int = hel(12,32)
+class His(My):
+    pass
 
-print(x)
+class Her:
+    pass
 
+your: My = My()
+my: type[My] = His

@@ -71,7 +71,16 @@ class Meeting(ABC):
         A virtual method in which agents come together with the meeting host and decide what to do.
         The decision is made differently depending on the meeting type. This method needs to be
         overloaded in the child classes.
+        """       
+
+    def run(self) -> None:
         """
+        Holds a meeting by running sequentially screen->compose->decide.
+        then it exports the state to all agents and organization
+        """
+        self.screen()
+        self.compose()
+        self.decide()
 
 class HierarchicalMeeting(Meeting):
     """

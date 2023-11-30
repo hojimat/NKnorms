@@ -18,9 +18,10 @@ BLUEPRINT = {
 
 "nsoc": (0,2,4), # number of social bits
 "deg": (2,),  # two types of degrees
-"net": ("random","line","cycle","ring","star"), # network structures
+"net": (0,1,2,3), # network structures 0=random,1=line,2=cycle,3=ring,4=star
 "xi": (1.0,), # probability of communicating
 "tm": (50,), # memory
+"coord": (0,1,2), # coordination mode 0=decentralized, 1=lateral, 2=hierarchical
 
 "apc": ((2,2,4),), # ALT,PROP,COMP parameters
 "wf": (1.0,), # weight for phi, incentive scheme

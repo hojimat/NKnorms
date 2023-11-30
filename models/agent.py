@@ -84,7 +84,8 @@ class Agent:
             a vector of utilities for each bitstring; shape=(Any)x1
         
         TODO: add an option to pass pre-computed performances for each bitstring,
-        to have fewer lookups,
+        to have fewer lookups;
+        TODO: add an option to return float if only one bit string is given
         """
         # define important indices
         start = self.id_ * self.n
