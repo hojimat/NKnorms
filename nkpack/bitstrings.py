@@ -187,52 +187,49 @@ def hamming_distance(x:NDArray[np.int8], y:NDArray[np.int8]) -> int:
     """
     return np.sum(x != y)
 
-def similarbits(x: NDArray[np.int8], p:int, n:int, nsoc:int) -> float:
-    """Calculates the similarity measure of the bitstring
-
-    Args:
-        x: the bitstring of interest
-        p: number of agents
-        n: number of tasks per agent
-        nsoc: number of imitated tasks per agent
-
-    Returns:
-        The float between 0 and 1
+def similarity(bstring: NDArray[np.int8], p:int, n:int, nsim:int) -> float:
     """
-    if nsoc>n:
-        raise InvalidParameterError('Number of social bits exceeds total number of bits')
-    tmp = np.reshape(x, (p,n))
-    tmp = np.sum(np.array(tmp), axis=0)[(n-nsoc):]
-    tmp = np.max((tmp/p, 1-tmp/p), axis=0)
-    return np.mean(tmp)
+    Calculates the similarity (synchrony) measure of the bitstring.
 
+    1) We define asynchrony as sum of all pairwise hamming distances
+    between agents' N-sized bitstrings
+    2) We define theoretical maximum possible value for asynchrony
+    (via a pattern we observed)
+    3) We return 1 - A/maxA
 
-def similarity(x: NDArray[np.int8], p:int, n:int, nsoc:int) -> float:
-    """Calculates the similarity measure of the bitstring
 
     Args:
-        x: the bitstring of interest
+        bstring: the bitstring of interest
         p: number of agents
         n: number of tasks per agent
-        nsoc: number of imitated tasks per agent
+        nsim: number of imitated tasks per agent
 
     Returns:
         The float between 0 and 1
     """
     if p<2:
         raise InvalidParameterError('Need at least 2 agents for similarity measure')
-    if nsoc<1:
-        raise InvalidParameterError('Please enter non-zero number of social bits')
+    if nsim<1:
+        raise InvalidParameterError('Please enter non-zero number of bits to consider')
 
-    tmp = np.reshape(x, (p,n))[:,(n-nsoc):]
-    sum_ = 0
-    for i in range(p):
-        for j in range(i,p):
-            sum_ += hamming_distance(tmp[i,:],tmp[j,:])
+    # Calculate sum of pairwise Hamming distances
+    # reshape to have a row per agent
+    by_agent = np.reshape(bstring, (p,n))[:,:nsim]
+    # add a broadcasting trick by adding new axes:
+    # this is quite clever, but not intuitive,
+    # it is basically an efficient replacement of nested for loops:
+    # `for i in range(p):
+    #   for j in range(i, p)`
+    by_agent_x = by_agent[np.newaxis,:,:]
+    by_agent_y = by_agent[:,np.newaxis,:]
+    
+    hamming_sum = np.sum(by_agent_x != by_agent_y)/2
 
-    max_sum = nsoc*(p/2)**2 if p%2==0 else nsoc*((p-1)/2)**2 + (p-1)*(nsoc/2)
-    output = 1-sum_/max_sum
-    return output
+    # now calculate the theoretical maximum for the Hamming sum
+    # source: found a simple pattern
+    max_sum = nsim*(p/2)**2 if p%2==0 else nsim*((p-1)/2)**2 + (p-1)*(nsim/2)
+    
+    return 1-hamming_sum/max_sum
 
 def extract_soc(x:NDArray[np.int8], id_:int, n:int, nsoc:int) -> NDArray[np.int8]:
     """Extracts social bits from a bitstring

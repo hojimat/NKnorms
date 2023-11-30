@@ -49,17 +49,22 @@ class Organization:
             agent.peers = peers
 
     
-    def calculate_goals(self, bstrings: NDArray[np.int8]) -> NDArray[np.float32]:
+    def calculate_gp_score(self, bstring: NDArray[np.int8]) -> float:
         """
         Uses goal programming to calculate the satisfaction
         of two goals: overall performance and synchrony.
 
         Args:
-            bstring: An array with 1 bitstring per row; shape=(Any)x(N*P) 
+            bstring: 
         Returns:
-            An array with Any float values for overall goal satisfaction; shape=(Any)x1
+            float
         """
-        
+        # get overall organizational performance
+        # which is a mean of individual performances
+        # of P agents
+        performance = np.mean(self.nature.landscape.phi(bstring))
+        # get synchrony measure
+
 
     def plan_meetings(self) -> None:
         """
