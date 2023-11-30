@@ -1,5 +1,6 @@
 """CEO defintion"""
 from __future__ import annotations
+import enum
 from typing import TYPE_CHECKING
 import numpy as np
 from numpy.typing import NDArray
@@ -52,16 +53,11 @@ class Organization:
         if self.agents is None:
             raise nk.UninitializedError("Agents are not initialized yet.")
 
-        peers_list = nk.generate_network(self.p, self.degree, self.xi, self.network)
+        peers_for_each = nk.generate_network(self.p, self.degree, self.xi, self.network)
 
-        for peers, agent in zip(peers_list, self.agents):
-            agent.peers = peers
-
-    def _archive_state(self):
-        """MOVE THIS FUNCTIONALITY SOMEWHEREarchives state"""
-        self.past_state.append(self.current_state.copy())
-        self.past_sim.append(nk.similarity(self.current_state, self.p, self.n, self.nsoc))
-        self.past_simb.append(nk.similarbits(self.current_state, self.p, self.n, self.nsoc))
+        #TODO: add weight support later
+        for peers, agent in zip(peers_for_each, self.agents):
+            agent.peers = [peer for i,peer in zip(peers, self.agents) if i!=0]
 
     
     def calculate_gp_score(self, bstring: NDArray[np.int8]) -> float:

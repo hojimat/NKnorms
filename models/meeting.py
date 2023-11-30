@@ -1,3 +1,4 @@
+from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 import numpy as np
@@ -59,7 +60,7 @@ class Meeting(ABC):
         # pick COMP random integers
         random_picks = np.random.choice(self.prop**self.p, self.comp)
         # convert the integers into triplet indices (x,y,z)
-        picked_indices = [np.unravel_index(i, [prop]*p) for i in random_picks]
+        picked_indices = [np.unravel_index(i, [self.prop]*self.p) for i in random_picks]
         # composite:
         composites = [ self.proposals[np.arange(self.p),index_,:].reshape(-1) for index_ in picked_indices ]
         
@@ -149,7 +150,7 @@ class DecentralizedMeeting(Meeting):
 
     """
 
-    def __init__(self, n:int, p:int, nature:Nature):
+    def __init__(self, n:int, p:int, alt:int, prop:int, comp:int, nature:Nature):
         super().__init__(n=n, p=p, alt=2, prop=1, comp=1, nature=nature)
         self.final = True
 

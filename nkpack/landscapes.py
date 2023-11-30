@@ -3,6 +3,7 @@ import numpy as np
 from numpy.typing import NDArray
 from numba import njit
 from scipy.stats import norm
+from .bitstrings import random_binary_matrix
 
 
 def interaction_matrix(N:int, K:int, shape:str="roll") -> NDArray[np.int8]:

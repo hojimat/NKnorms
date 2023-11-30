@@ -73,7 +73,7 @@ class Nature:
         # set states and calculate performances of P agents
         for agent in self.agents:
             agent.current_state = initial_bstring
-            agent.current_utility = agent.calculate_utility(initial_bstring)[0]
+            agent.current_utility = agent.calculate_utility(initial_bstring.reshape(1,-1))[0]
 
         # save performances and synchronies to the organization archive
         self.organization.performances[0, :] = self.landscape.phi(self.organization.states[0,:])
@@ -102,7 +102,7 @@ class Nature:
             self.organization.current_gp_score = self.organization.calculate_gp_score(meeting.outcome)
             for agent in self.agents:
                 agent.current_state = meeting.outcome
-                agent.current_utility = agent.calculate_utility(meeting.outcome)[0]
+                agent.current_utility = agent.calculate_utility(meeting.outcome.reshape(1,-1))[0]
 
             # Agents talk in a network with each other
             for agent in self.agents:
@@ -112,6 +112,7 @@ class Nature:
     def _create_environment(self):
         """Creates the task environment."""
         self.landscape = Landscape(self.p, self.n, self.k, self.c, self.s, self.rho, self.normalize, self.precompute)
+        self.landscape.generate()
 
 
     def _create_players(self):

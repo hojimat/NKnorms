@@ -1,6 +1,8 @@
 
 import numpy as np
 from numpy.typing import NDArray
+from .exceptions import *
+from .bitstrings import random_binary_matrix
 
 
 def assign_tasks(N,POP,shape="solo"):

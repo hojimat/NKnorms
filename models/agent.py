@@ -43,6 +43,7 @@ class Agent:
         current_social_bits = self.current_state[start:end]
         
         for peer in self.peers:
+            #TODO add probability xi support
             peer.receive_social_bits(current_social_bits)
 
     def receive_social_bits(self, received_bits:NDArray[np.int8]) -> None:

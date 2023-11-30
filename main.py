@@ -1,9 +1,8 @@
 from models import Nature
 import numpy as np
-import nkpack as nk
 import progressbar
-from math import sqrt
 from multiprocessing import Pool
+import nkpack as nk
 
 ########
 MC = 1000 # number of repetitions
@@ -14,7 +13,7 @@ BLUEPRINT = {
 "t": (500,), # life span of organization
 "rho": (0.3, 0.9), # correlation
 
-"nsoc": (0,2,4), # number of social bits
+"nsoc": (4,), # number of social bits
 "deg": (2,),  # two types of degrees
 "net": (0,1,2,3), # network structures 0=random,1=line,2=cycle,3=ring,4=star
 "xi": (1.0,), # probability of communicating
@@ -32,8 +31,8 @@ BLUEPRINT = {
 
 ########
 
-def run_simulation(bar_, mc_):
-    nature = Nature(**params)
+def run_simulation(parameters, bar_, mc_):
+    nature = Nature(**parameters)
     #np.random.seed()
     nature.initialize()
     nature.play()
@@ -52,7 +51,7 @@ def main():
         #pool = Pool(4)
         quantum = []
         for i in range(MC):
-            quantum.append(run_simulation(bar, i))
+            quantum.append(run_simulation(params, bar, i))
         #quantum.append(pool.map(single_iteration,range(MC)))
         #pool.close()
         bar.finish()
@@ -68,3 +67,5 @@ def main():
         np.savetxt("results/perf/" + params_filename + ".csv", performances, delimiter=',', fmt='%10.5f')
         np.savetxt("results/sync/" + params_filename + ".csv", synchronies, delimiter=',', fmt='%10.5f')
 
+if __name__=='__main__':
+    main()
