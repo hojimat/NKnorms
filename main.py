@@ -1,11 +1,9 @@
-from architecture import Organization
+from models import Nature
 import numpy as np
 import nkpack as nk
-from matplotlib import pyplot as plt
 import progressbar
 from math import sqrt
 from multiprocessing import Pool
-from time import time, sleep
 
 ########
 MC = 1000 # number of repetitions
@@ -34,33 +32,39 @@ BLUEPRINT = {
 
 ########
 
-for params in nk.variate(BLUEPRINT):
-    bar = progressbar.ProgressBar(max_value=MC)
-    bar.start()
+def run_simulation(bar_, mc_):
+    nature = Nature(**params)
+    #np.random.seed()
+    nature.initialize()
+    nature.play()
+    performances = nature.organization.performances.mean(axis=1)
+    synchronies = nature.organization.synchronies
+    bar_.update(mc_)
+    return performances, synchronies
 
-    def single_iteration(mc):
-        firm = Organization(**params)
-        np.random.seed()
-        firm.define_tasks()
-        firm.hire_people()
-        firm.form_networks()
-        firm.play()
-        past_perf = firm.perf_hist
-        past_sim = firm.nature.past_sim
-        bar.update(mc)
-        return past_perf, past_sim
+
+def main():    
+    for params in nk.variate(BLUEPRINT):
+        bar = progressbar.ProgressBar(max_value=MC)
+        bar.start()
         
-    #pool = Pool(4)
-    quantum = []
-    for i in range(MC):
-        quantum.append(single_iteration(i))
-    #quantum.append(pool.map(single_iteration,range(MC)))
-    #pool.close()
-    bar.finish()
-    quantum = quantum[0]
-    past_perf = [z[0] for z in quantum]
-    past_sim = [z[1] for z in quantum]
-    params_filename = "".join(f"{k}{v}" for k,v in params.items())
-    np.savetxt("../tab_perf/" + params_filename + ".csv", past_perf, delimiter=',', fmt='%10.5f')
-    np.savetxt("../tab_sim/" + params_filename + ".csv", past_sim, delimiter=',', fmt='%10.5f')
+        # run 
+        #pool = Pool(4)
+        quantum = []
+        for i in range(MC):
+            quantum.append(run_simulation(bar, i))
+        #quantum.append(pool.map(single_iteration,range(MC)))
+        #pool.close()
+        bar.finish()
+
+        # T x MC array of mean performance and synchrony of an
+        # organization at every period for MC repetitions
+        # TODO: looks suspicious
+        performances = [z[0] for z in quantum[0]]
+        synchronies = [z[1] for z in quantum[0]]
+
+        # save to files
+        params_filename = "".join(f"{k}{v}" for k,v in params.items())
+        np.savetxt("results/perf/" + params_filename + ".csv", performances, delimiter=',', fmt='%10.5f')
+        np.savetxt("results/sync/" + params_filename + ".csv", synchronies, delimiter=',', fmt='%10.5f')
 
