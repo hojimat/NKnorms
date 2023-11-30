@@ -32,11 +32,12 @@ class Nature:
         self.degree = kwargs['deg'] # degree of network of agents (analog and digital)
         self.xi = kwargs['xi'] # probability of connecting through channel
         self.net = kwargs['net'] # network topology
-        self.w = kwargs['w'] # weights for performance and social norms
         self.tm = kwargs['tm'] # memory span of agents
         # search behavior
         self.alt, self.prop, self.comp = kwargs['apc'] # number of alternatives, proposals, composites
         self.wf = kwargs['wf'] # weights for individual vs. collective incentive system
+        self.w = kwargs['w'] # weights for performance and conformity
+        self.goals = kwargs['goals']
         # history
         self.t = kwargs['t'] # lifespan of the organization
         # players
@@ -51,7 +52,7 @@ class Nature:
     def create_players(self):
         """Spawn main players: 1 organization and P agents"""
         
-        self.organization = Organization(n=self.n, p=self.p, nature=self)
+        self.organization = Organization(n=self.n, p=self.p, goals=self.goals, nature=self)
         params = (self.n, self.p, self.nsoc, self.degree, self.tm, self.w, self.wf, self)
         self.agents = [Agent(i, *params) for i in range(self.p)]
 

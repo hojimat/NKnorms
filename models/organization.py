@@ -16,11 +16,12 @@ class Organization:
 
     It stores performance and synchrony histories obtained from Nature.
     """
-    def __init__(self, n:int, p:int, nature: Nature):
+    def __init__(self, n:int, p:int, goals:tuple[float], nature: Nature):
         # environment and user-input params:
         self.nature = nature
         self.n = n
         self.p = p
+        self.goals = goals
         self.agents: list[Agent] = None # "hire" all people from environment
         # histories:
         self.states = np.empty((nature.t, nature.n*nature.p), dtype=np.int8) # bitstrings history
@@ -28,7 +29,7 @@ class Organization:
         self.synchronies = np.empty(nature.t, dtype=np.float32) # synchrony measures history
 
     def hire_agents(self, agents: list[Agent]) -> None:
-        """Hires people by storing a reference to them"""
+        """Hires people by storing a reference to them and in them"""
         self.agents = agents
         for agent in agents:
             agent.organization = self
@@ -64,6 +65,11 @@ class Organization:
         # of P agents
         performance = np.mean(self.nature.landscape.phi(bstring))
         # get synchrony measure
+        synchrony = nk.similarity(bstring, self.p, self.n, self.n)
+        # get the goal programming score
+        gp_score = nk.gp_score(np.array([performance, synchrony]), np.array(self.goals), np.array([1,1]))
+        
+        return gp_score
 
 
     def plan_meetings(self) -> None:
