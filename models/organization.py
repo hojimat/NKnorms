@@ -24,6 +24,7 @@ class Organization:
         self.goals = goals
         self.agents: list[Agent] = None # "hire" all people from environment
         # histories:
+        self.current_gp_score = 0.0
         self.states = np.empty((nature.t, nature.n*nature.p), dtype=np.int8) # bitstrings history
         self.performances = np.empty((nature.t, nature.p), dtype=np.float32) # agents' performances 
         self.synchronies = np.empty(nature.t, dtype=np.float32) # synchrony measures history

@@ -84,7 +84,20 @@ class HierarchicalMeeting(Meeting):
     """
 
     def decide(self):
-        pass
+        """
+        Composites are put to check by organization one by one until
+        found one better than status quo
+        """
+        
+        for composite in self.composites:
+            # utility of a composite and get current utility
+            new_gp_score = self.nature.organization.calculate_gp_score(composite)
+            old_gp_score = self.nature.organization.current_gp_score
+
+            if new_gp_score >= old_gp_score:            
+                self.outcome = composite
+                break
+
 
 class LateralMeeting(Meeting):
     """
