@@ -1,7 +1,0 @@
-version: '3'
-services:
-    sim:
-        build: .
-        volumes:
-            - .:/home/khorav/sann
-        command: python -u main.py
