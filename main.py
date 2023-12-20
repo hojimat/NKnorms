@@ -5,7 +5,7 @@ from multiprocessing import Pool
 import nkpack as nk
 
 ########
-MC = 1000 # number of repetitions
+MC = 100 # number of repetitions
 BLUEPRINT = {
 "p": (5,), # number of agents
 "n": (4,), # number of bits
