@@ -118,7 +118,7 @@ class LateralMeeting(Meeting):
     and output is written to self.outcome
 
     """
-    def __init__(self, n:int, p:int, nature:Nature):
+    def __init__(self, n:int, p:int, alt:int, prop:int, comp:int, nature:Nature):
         super().__init__(n=n, p=p, alt=2, prop=1, comp=1, nature=nature)
         self.random = True
 

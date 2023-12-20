@@ -207,7 +207,7 @@ def calculate_all_performances(imat: NDArray[np.int8], cmat: NDArray[np.float32]
         performances[i,:] = phis
 
         # find global max for aggregate performance
-        if sum(phis) > max_performance:
-            max_performance = sum(phis)
+        if sum(phis)/p > max_performance:
+            max_performance = sum(phis)/p
 
     return performances, max_performance

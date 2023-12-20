@@ -63,17 +63,6 @@ class Agent:
             # clear the buffer
             self._current_received_bits.clear()
 
-    def observe_state(self):
-        """observes the current bitstring choice by everyone"""
-        self.current_state = self.nature.current_state.copy()
-        self._current_performance = self.nature.current_perf
-
-    def report_state(self):
-        """reports state to nature"""
-        n = self.n
-        i = self.id
-        self.nature.current_state[i*n:(i+1)*n] = self.current_state[i*n:(i+1)*n].copy()
-        self.nature.current_soc[i] = self.phi_soc
 
     def calculate_utility(self, bstrings: NDArray[np.int8]) -> NDArray[np.float32]:
         """
