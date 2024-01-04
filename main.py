@@ -23,7 +23,7 @@ BLUEPRINT = {
 "apc": ((2,2,4),), # ALT,PROP,COMP parameters
 "wf": (1.0,), # weight for phi, incentive scheme
 "goals": ((1.0, 1.0),), # goals for incentives and for conformity
-"w": (1.0,), # weight for incentives ; weight for conformity is 1-w
+"w": (0.5,), # weight for incentives ; weight for conformity is 1-w
 
 "normalize": (True,), # normalizes by global maximum
 "precompute": (True,), # pre-computes performances for all bitstrings

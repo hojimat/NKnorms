@@ -83,7 +83,6 @@ class Agent:
 
         # calculate performance for every alternative; shape=(Any)xP
         performances_all = np.apply_along_axis(self.nature.landscape.phi, axis=1, arr=bstrings)
-
         # calculate incentives (own performance + mean of other performances weighted sum)
         performances_own, performances_others = nk.decompose_performances(performances_all, self.id_)
         incentives: NDArray[np.float32] = self.wf * performances_own + (1-self.wf) * performances_others

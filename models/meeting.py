@@ -106,7 +106,11 @@ class HierarchicalMeeting(Meeting):
 
             if new_gp_score >= old_gp_score:            
                 self.outcome = composite
-                break
+                return
+
+        # if no composite was accepted, don't climb
+        self.outcome = self.nature.agents[0].current_state
+
 
 
 class LateralMeeting(Meeting):
@@ -124,17 +128,20 @@ class LateralMeeting(Meeting):
 
     def decide(self):
         """Composites are put to vote one by one until consensus is reached"""
-        
+
         for composite in self.composites:
             # for each agent calculate utility of a composite and get current utility
-            new_utilities = np.array([agent.calculate_utility(composite) for agent in self.nature.agents])
+            new_utilities = np.array([agent.calculate_utility(composite.reshape(1,-1)) for agent in self.nature.agents])
             old_utilities = np.array([agent.current_utility for agent in self.nature.agents])
             # vote True if decides to climb up
             votes = (new_utilities >= old_utilities)
-            # if voted unanimously, climb up and end the loop
+            # if voted unanimously, climb up and exit the function,
             if votes.all():            
                 self.outcome = composite
-                break
+                return
+        
+        # if no composite was accepted, don't climb
+        self.outcome = self.nature.agents[0].current_state
 
 
 
