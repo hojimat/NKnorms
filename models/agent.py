@@ -29,7 +29,7 @@ class Agent:
         self._current_conformity: float = 0.0
         self._current_received_bits: list = [] # temporary storage
         # information about social interactions
-        self._received_bits_memory: NDArray[np.int8] = np.zeros((tm, deg, nsoc), dtype=np.int8) # shared social bits memory
+        self._received_bits_memory: NDArray[np.int8] = np.ones((tm, deg, nsoc), dtype=np.int8) * 2 # shared social bits memory (2 means empty)
         self.peers : list[Agent] = None # agents, that this agent talks with in a network
 
     def publish_social_bits(self) -> None:

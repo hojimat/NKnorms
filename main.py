@@ -11,11 +11,11 @@ BLUEPRINT = {
 "n": (4,), # number of bits
 "kcs": ((3,0,0),(2,2,2)), # K,C,S parameters
 "t": (500,), # life span of organization
-"rho": (0.3,0.9), # correlation
+"rho": (0.9,), # correlation
 
 "nsoc": (4,), # number of social bits
-"deg": (2,),  # two types of degrees
-"net": (3,), # network structures 0=random,1=line,2=cycle,3=ring,4=star
+"deg": (2,3,4),  # two types of degrees
+"net": (1,2,3,4,), # network structures 0=random,1=line,2=cycle,3=ring,4=star
 "xi": (1.0,), # probability of communicating
 "tm": (50,), # memory
 "coord": (0,), # coordination mode 0=decentralized, 1=lateral, 2=hierarchical

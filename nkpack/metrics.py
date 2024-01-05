@@ -78,13 +78,14 @@ def gp_score(perfs: NDArray[np.float32], goals: NDArray[np.float32], weights: ND
 def calculate_frequency(bstring: NDArray[np.int8], lookup_table: NDArray[np.int8]) -> float:
     """
     Calclates frequency of a bitstring in a (pre-flattened) lookup table of bistrings.
+    If sees a row that contains at least one value which is not 0 or 1, simply ignores it.
 
     Args:
         bstring: 1xNSOC sized array
         lookup_table: (TM*DEG)xNSOC sized array of bstrings
 
     Returns:
-        Frequency of bstring in lookup_table
+        Frequency of bstring in lookup_table excluding non (0,1) rows
 
     Example:
         bstring=np.array([1,1])
@@ -97,7 +98,11 @@ def calculate_frequency(bstring: NDArray[np.int8], lookup_table: NDArray[np.int8
         should return 1/3
     """
     
-    return np.mean(lookup_table==bstring)
+    # ignore rows that contain any value that is not 0 or 1
+    nonempty = np.all((lookup_table==0) | (lookup_table==1), axis=(1,2))
+    lookup = lookup_table[nonempty]
+    
+    return np.mean(lookup==bstring)
 
 def beta_mean(x,y):
     """Calculates the mean of the Beta(x,y) distribution
