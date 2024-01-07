@@ -101,6 +101,10 @@ def calculate_frequency(bstring: NDArray[np.int8], lookup_table: NDArray[np.int8
     # ignore rows that contain any value that is not 0 or 1
     nonempty = np.all((lookup_table==0) | (lookup_table==1), axis=(1,2))
     lookup = lookup_table[nonempty]
+    # if no social bits are received then return 1.0
+    # because this guy doesn't care about others
+    if lookup.size == 0:
+        return 1.0
     
     return np.mean(lookup==bstring)
 

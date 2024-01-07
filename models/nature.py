@@ -107,6 +107,7 @@ class Nature:
             # Agents talk in a network with each other
             for agent in self.agents:
                 agent.publish_social_bits()
+            
 
 
     def _create_environment(self):
