@@ -14,8 +14,8 @@ BLUEPRINT = {
 "rho": (0.9,), # correlation
 
 "nsoc": (4,), # number of social bits
-"deg": (2,3,4),  # two types of degrees
-"net": (1,2,3,4,), # network structures 0=random,1=line,2=cycle,3=ring,4=star
+"deg": (2,),  # two types of degrees
+"net": (1,), # network structures 0=random,1=line,2=cycle,3=ring,4=star
 "xi": (1.0,), # probability of communicating
 "tm": (50,), # memory
 "coord": (0,), # coordination mode 0=decentralized, 1=lateral, 2=hierarchical
@@ -23,7 +23,7 @@ BLUEPRINT = {
 "apc": ((2,2,4),), # ALT,PROP,COMP parameters
 "wf": (1.0,), # weight for phi, incentive scheme
 "goals": ((1.0, 1.0),), # goals for incentives and for conformity
-"w": (1.0, 0.5), # weight for incentives ; weight for conformity is 1-w
+"w": (0.5,), # weight for incentives ; weight for conformity is 1-w
 
 "normalize": (True,), # normalizes by global maximum
 "precompute": (True,), # pre-computes performances for all bitstrings
@@ -42,20 +42,17 @@ def run_simulation(parameters, bar_, mc_):
     return performances, synchronies
 
 
-def main():    
+if __name__=='__main__':
     for params in nk.variate(BLUEPRINT):
         bar = progressbar.ProgressBar(max_value=MC)
-        bar.start()
-        
-        # run 
-        #pool = Pool(4)
-        quantum = []
-        for i in range(MC):
-            quantum.append(run_simulation(params, bar, i))
-        #quantum.append(pool.map(single_iteration,range(MC)))
-        #pool.close()
+
+        def worker(i):
+            return run_simulation(params, bar, i)
+
+        bar.start()        
+        with Pool(4) as pool:
+            quantum = pool.map(worker, range(MC))
         bar.finish()
-        # quantum = quantum[0]
 
         # T x MC array of mean performance and synchrony of an
         # organization at every period for MC repetitions
@@ -69,6 +66,3 @@ def main():
 
         np.savetxt("results/perf/" + params_filename, performances, delimiter=',', fmt='%10.5f')
         np.savetxt("results/sync/" + params_filename, synchronies, delimiter=',', fmt='%10.5f')
-
-if __name__=='__main__':
-    main()

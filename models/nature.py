@@ -109,7 +109,6 @@ class Nature:
                 agent.publish_social_bits()
             
 
-
     def _create_environment(self):
         """Creates the task environment."""
         self.landscape = Landscape(self.p, self.n, self.k, self.c, self.s, self.rho, self.normalize, self.precompute)
