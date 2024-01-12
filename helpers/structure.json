@@ -1,0 +1,26 @@
+{
+    "structure" : [
+        ["Xperf", "Xsync"],
+        ["kcs300", "kcs222"],
+        ["rho6", "rho9"],
+        ["net1", "net2", "net3", "net4"],
+        ["coord0", "coord1", "coord2"]
+    ],
+    
+    "patterns" : {
+        "kcs300": "p.*kcs\\(3,0,0\\).*\\.csv",
+        "kcs222": "p.*kcs\\(2,2,2\\).*\\.csv",
+
+        "rho6": "p.*rho0.6.*\\.csv",
+        "rho9": "p.*rho0.9.*\\.csv",
+        
+        "net1": "p.*net1.*\\.csv",
+        "net2": "p.*net2.*\\.csv",
+        "net3": "p.*net3.*\\.csv",
+        "net4": "p.*net4.*\\.csv",
+
+        "coord0": "p.*coord0.*\\.csv",
+        "coord1": "p.*coord1.*\\.csv",
+        "coord2": "p.*coord2.*\\.csv"
+    }
+}
