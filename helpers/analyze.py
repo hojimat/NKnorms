@@ -23,6 +23,7 @@ def texify(dirs):
     """Generate proper file names and create figures for all but last 2 subdirs"""
 
     doc = Document()
+    doc.preamble.append(NoEscape(r'\usepackage[left=1cm,right=1cm,top=1cm,bottom=1cm]{geometry}'))
 
     for combination in itertools.product(*dirs[:-2]):
         figure_name = ''.join(combination)
