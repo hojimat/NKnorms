@@ -18,7 +18,7 @@ class Organization:
 
     It stores performance and synchrony histories obtained from Nature.
     """
-    def __init__(self, n:int, p:int, t:int, goals:tuple[float], net:int, deg:int, xi:float, coord:int, nature: Nature):
+    def __init__(self, n:int, p:int, nsoc:int, t:int, goals:tuple[float], net:int, deg:int, xi:float, coord:int, nature: Nature):
         # environment and user-input params:
         self.nature = nature
         self.n = n
@@ -27,6 +27,7 @@ class Organization:
         self.goals = goals
         self.agents: list[Agent] = None # hire people from environment
         # search behavior
+        self.nsoc = nsoc
         self.degree = deg
         self.xi = xi
         self.network: str = ('random', 'line', 'cycle', 'ring', 'star')[net]
@@ -75,7 +76,7 @@ class Organization:
         # of P agents
         performance = np.mean(self.nature.landscape.phi(bstring))
         # get synchrony measure
-        synchrony = nk.similarity(bstring, self.p, self.n, self.n)
+        synchrony = nk.similarity(bstring, self.p, self.n, self.nsoc)
         # get the goal programming score
         gp_score = nk.gp_score(np.array([performance, synchrony]), np.array(self.goals), np.array([1,1]))
         

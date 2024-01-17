@@ -118,7 +118,7 @@ class Nature:
     def _create_players(self):
         """Spawn main players: 1 organization and P agents"""
         
-        params = (self.n, self.p, self.t, self.goals, self.net, self.degree, self.xi, self.coord, self)
+        params = (self.n, self.p, self.nsoc, self.t, self.goals, self.net, self.degree, self.xi, self.coord, self)
         self.organization = Organization(*params)
 
         params = (self.n, self.p, self.nsoc, self.degree, self.tm, self.w, self.wf, self)

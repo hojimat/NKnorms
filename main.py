@@ -1,7 +1,15 @@
-from models import Nature
+"""
+Main script to set parameters and run the simulation
+
+Author:
+Ravshan Hojimat
+University of Klagenfurt
+"""
+
+from multiprocessing import Pool
 import numpy as np
 import progressbar
-from multiprocessing import Pool
+from models import Nature
 import nkpack as nk
 
 ########
@@ -32,31 +40,32 @@ BLUEPRINT = {
 ########
 
 def run_simulation(parameters, bar_, mc_):
+    """A set of instructions for a single iteration"""
     nature = Nature(**parameters)
     #np.random.seed()
     nature.initialize()
     nature.play()
-    performances = nature.organization.performances.mean(axis=1)
-    synchronies = nature.organization.synchronies
+    perfs = nature.organization.performances.mean(axis=1)
+    syncs = nature.organization.synchronies
     bar_.update(mc_)
-    return performances, synchronies
+    return perfs, syncs
 
 
 if __name__=='__main__':
     for params in nk.variate(BLUEPRINT):
-        bar = progressbar.ProgressBar(max_value=MC)
+        pbar = progressbar.ProgressBar(max_value=MC)
 
         def worker(i):
-            return run_simulation(params, bar, i)
+            """A worker function that calls iterations in a Pool"""
+            return run_simulation(params, pbar, i)
 
-        bar.start()        
+        pbar.start()
         with Pool(4) as pool:
             quantum = pool.map(worker, range(MC))
-        bar.finish()
+        pbar.finish()
 
         # T x MC array of mean performance and synchrony of an
         # organization at every period for MC repetitions
-        # TODO: looks suspicious
         performances = [z[0] for z in quantum]
         synchronies = [z[1] for z in quantum]
 

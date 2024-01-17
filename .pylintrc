@@ -46,7 +46,6 @@ fail-under=10
 #from-stdin=
 
 # Files or directories to be skipped. They should be base names, not paths.
-ignore=CVS
 ignore=tests
 
 # Add files or directories matching the regular expressions patterns to the
@@ -110,6 +109,8 @@ unsafe-load-any-extension=no
 
 # In verbose mode, extra non-checker-related info will be displayed.
 #verbose=
+
+disable=C0103
 
 
 [BASIC]
