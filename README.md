@@ -16,6 +16,10 @@ The big part of the codebase is the _NKPackage_ that contains utility commands f
 
 The directory `models/` contains the definitions of the aforementioned classes. The files `main.py` and `test.py` contain the particular implementation, given the parameter set. The directory `refmaterial/` contains the utilities and useful functions. The directory `nkpack` contains the newest version of the _NKPackages_.
 
+The class diagram below illustrates the actual OOP structure of the codebase.
+
+![classdiag](./refmaterial/classes_nknorms.png)
+
 ### Performance
 The `_calculate_global_maximum` method is the slowest part of the code, as it runs through every possible bitstring and maps it to a performance. At the moment, `jit` is used for its underlying `nk.calculate_performances` command under _NKPackage_. Also the `main.py` runs a `multiprocessing.Pool` for faster simulations. _CUDA_ is being considered at the moment, but without clear idea how to implement it.
 

@@ -88,7 +88,7 @@ def generate_couples(pop:int, s:int = 2, shape:str = "cycle") -> list:
         shape: A network topology. Takes values 'cycle' (default)
 
     Returns:
-        list: A list of S-sized vectors with couples for every landscape.
+        A list of S-sized vectors with couples for every landscape.
     """
 
     if s >= pop:
