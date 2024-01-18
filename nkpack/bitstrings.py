@@ -26,26 +26,27 @@ def binary_combinations(N,R):
     output = np.reshape(tmp,(-1,N))
     return(output)
     
-def random_binary_matrix(N,R,diag=None):
+def random_binary_matrix(N:int, R:int, diag=None) -> NDArray[np.int8]:
     """Generates a random binary square matrix with a given row/col sum
 
     Args:
-        N (int): Number of rows/cols
-        R (int): Sum of rows/cols
+        N: Number of rows/cols
+        R: Sum of rows/cols
         diag (int or None): Fixed value for diagonal. Takes values None (default), 0, 1.
 
     Returns:
-        numpy.ndarray: an NxN numpy array
+        An NxN numpy array
     """
 
     if N==R:
         tmp = np.ones((N,R),dtype=int)
         return tmp
-    elif N<R:
-        print("Incorrect binary matrix. Check parameters.")
-        return
+
+    if R > N:
+        raise InvalidParameterError("Sum of rows is greater than number of rows.")
+
     # create a minimal 2d matrix of zeros for easier indexing
-    tmp = np.zeros(2*N,dtype=int).reshape(2,N) 
+    tmp = np.zeros(2*N,dtype=int).reshape(2,N)
     cl = binary_combinations(N,R)
     for i in range(N):
         colsums = np.sum(tmp,0)
@@ -61,7 +62,7 @@ def random_binary_matrix(N,R,diag=None):
             k = np.where(cl[:,j]==0)[0]
             inx = np.union1d(inx,k)
         cl = np.delete(cl,inx,0)
-        # temporarily ignore diagonal 1s or 0s 
+        # temporarily ignore diagonal 1s or 0s
         cli = cl.copy()
         if diag is not None:
             ivx = np.where(cl[:,i]==diag)[0]
@@ -77,13 +78,14 @@ def random_binary_matrix(N,R,diag=None):
             ind = np.random.choice(ncli)
             tmp = np.vstack((tmp,cli[ind,:]))
         elif ncli==0 and ncl>0:
-            print('Error creating non-zero diagonals. Rerun the function')
-            return 0
+            raise InvalidBitstringError("Error creating non-zero diagonals. Rerun the function")
         else:
-            print('Incorrect binary matrix. Check the dimensions.')
-            return 
+            raise InvalidBitstringError("Incorrect binary matrix. Check the dimensions.")
+
     output = np.delete(tmp,[0,1],0) # remove first 2 empty rows created above
-    return(output)
+
+    return output
+
 
 def dec2bin(decimal: int, len_: int) -> NDArray[np.int8]:
     """

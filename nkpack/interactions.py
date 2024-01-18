@@ -79,7 +79,7 @@ def generate_network(pop: int, s: int = 2, pcom: float = 1.0, shape: str = "rand
 
     return output
 
-def generate_couples(pop:int, s:int = 2, shape:str = "cycle") -> list:
+def generate_couples(pop:int, s:int = 2, shape:str = "random") -> list:
     """Generates couplings between landscapes (external interaction) 
 
     Args:
@@ -98,8 +98,10 @@ def generate_couples(pop:int, s:int = 2, shape:str = "cycle") -> list:
     if s == 0:
         output = []
     elif shape=="cycle":
-        tmp = [[(z-1) % pop] + [i % pop for i in range(z+1,z+s)] for z in range(pop)]
-        output = tmp
+        output = [[(z-1) % pop] + [i % pop for i in range(z+1,z+s)] for z in range(pop)]
+    elif shape=="random":
+        arr = random_binary_matrix(pop, s, 0)
+        output = [np.where(arr[:, col])[0].tolist() for col in range(pop)]
     else:
         raise InvalidParameterError("Unrecognized network shape.")
     
