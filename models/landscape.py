@@ -84,6 +84,7 @@ class Landscape:
         # external coupling
         external = nk.random_binary_matrix(self.n, self.c)
         peers_list = nk.generate_couples(self.p, self.s)
+
         for i, peers in zip(range(self.p), peers_list):
             for peer in peers:
                 inmat[i*self.n : (i+1)*self.n, peer*self.n : (peer+1)*self.n] = external

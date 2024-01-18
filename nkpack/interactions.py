@@ -1,4 +1,5 @@
 
+from __future__ import annotations
 import numpy as np
 from numpy.typing import NDArray
 from .exceptions import *
@@ -78,28 +79,29 @@ def generate_network(pop: int, s: int = 2, pcom: float = 1.0, shape: str = "rand
 
     return output
 
-def generate_couples(POP,S=2,shape="cycle"):
+def generate_couples(pop:int, s:int = 2, shape:str = "cycle") -> list:
     """Generates couplings between landscapes (external interaction) 
 
     Args:
-        POP (int): Number of landscapes (population size)
-        S (int): Number of landscapes considered for external bits
-        shape (str): A network topology. Takes values 'cycle' (default)
+        pop: Number of landscapes (population size)
+        s: Number of landscapes considered for external bits
+        shape: A network topology. Takes values 'cycle' (default)
 
     Returns:
         list: A list of S-sized vectors with couples for every landscape.
     """
 
-    if S>=POP:
-        print("Error: wrong network degree")
-        return 0
+    if s >= pop:
+        raise InvalidParameterError("Number of coupled species cannot exceed the population size")
+
     output = None
-    if S == 0:
+    if s == 0:
         output = []
     elif shape=="cycle":
-        tmp = [[(z-1)%POP] + [_%POP for _ in range(z+1,z+S)] for z in range(POP)]
+        tmp = [[(z-1) % pop] + [i % pop for i in range(z+1,z+s)] for z in range(pop)]
         output = tmp
     else:
-        print(f"Unrecognized network shape '{shape}'")
-    return(output)
+        raise InvalidParameterError("Unrecognized network shape.")
+    
+    return output
 

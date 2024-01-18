@@ -110,7 +110,8 @@ class Agent:
             prop:   number of proposals to choose from the alternatives
             random: if true, the screening simply returns PROP random 1-bit deviations
             final:  final decision; if true, directly compares new utility of the highest
-                    candidate to the status quo and returns whichever is highest
+                    candidate to the status quo and returns whichever is highest; if false, 
+                    does not make any comparisons to status quo.
         Returns:
             numpy array of shape PROPxN
         """

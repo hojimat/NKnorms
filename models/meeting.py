@@ -12,7 +12,6 @@ class Meeting(ABC):
     This class handles the decision making in coordination
     This is a generalization of a simple climb up-or-down mechanism from earlier versions.
     It relates to an Organization class in a one-to-one manner.
-
     """
     
     def __init__(self, n:int, p:int, alt:int, prop:int, comp:int, nature:Nature):
@@ -57,7 +56,6 @@ class Meeting(ABC):
         Examples:
                 [[1,0],[0,0]], --->  [1,0,1,1],
                 [[1,1],[0,1]]  --->  [0,0,1,1]
-
         """
 
         # pick COMP random integers
@@ -88,6 +86,80 @@ class Meeting(ABC):
         self.compose()
         self.decide()
 
+
+class DecentralizedMeeting(Meeting):
+    """
+    The decentralized structure:
+    1) agents screen their proposals and propose 1 bistring
+    already having compared it to the status quo and chosen
+    the highest
+    2) meeting host creates composites of their proposals
+    3) agents vote for their own 1 bitstring (kinda redundant),
+    and output is written to self.outcome
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        Calls the parent's init function but sets prop=1,
+        comp=1 because the individual screening decision is final,
+        and only this one final decision reaches the meeting.
+        It takes alt from user because it is possible to be
+        autonomous and to look at more than one 1bit deviation.
+        """
+
+        super().__init__(*args, **kwargs)
+        self.prop = 1
+        self.comp = 1
+        self.final = True
+
+    def decide(self):
+        """
+        Every agent independently decides to climb up or not.
+        No vote happens, everybody simply picks his own proposal
+        """
+
+        self.outcome = self.composites[0, :]
+
+
+class LateralMeeting(Meeting):
+    """
+    The lateral communication:
+    1) agents randomly come up with the proposals
+    2) meeting host creates composites of their proposals
+    3) agents vote/veto the solutions in a random order,
+    and output is written to self.outcome
+    """
+
+    def __init__(self, *args, **kwargs):
+        """
+        In lateral communication, the screening process is random,
+        and whatever number of alternatives you look at, the same
+        number of proposals you generate.
+        """
+
+        super().__init__(*args, **kwargs)
+        self.prop = self.alt
+        self.random = True
+
+    def decide(self):
+        """Composites are put to vote one by one until consensus is reached"""
+
+        for composite in self.composites:
+            # for each agent calculate utility of a composite and get current utility
+            new_utilities = np.array([agent.calculate_utility(composite.reshape(1,-1)) for agent in self.nature.agents])
+            old_utilities = np.array([agent.current_utility for agent in self.nature.agents])
+            breakpoint()
+            # vote True if decides to climb up
+            votes = (new_utilities >= old_utilities)
+            # if voted unanimously, climb up and exit the function,
+            if votes.all():            
+                self.outcome = composite
+                return
+
+        # if no composite was accepted, don't climb
+        self.outcome = self.nature.agents[0].current_state
+
+
 class HierarchicalMeeting(Meeting):
     """
     The hierarchical coordination:
@@ -115,62 +187,3 @@ class HierarchicalMeeting(Meeting):
 
         # if no composite was accepted, don't climb
         self.outcome = self.nature.agents[0].current_state
-
-
-
-class LateralMeeting(Meeting):
-    """
-    The lateral communication:
-    1) agents randomly come up with the proposals
-    2) meeting host creates composites of their proposals
-    3) agents vote/veto the solutions in a random order,
-    and output is written to self.outcome
-
-    """
-    def __init__(self, *args, **kwargs):
-        super().__init__(*args, **kwargs)
-        self.random = True
-
-    def decide(self):
-        """Composites are put to vote one by one until consensus is reached"""
-
-        for composite in self.composites:
-            # for each agent calculate utility of a composite and get current utility
-            new_utilities = np.array([agent.calculate_utility(composite.reshape(1,-1)) for agent in self.nature.agents])
-            old_utilities = np.array([agent.current_utility for agent in self.nature.agents])
-            breakpoint()
-            # vote True if decides to climb up
-            votes = (new_utilities >= old_utilities)
-            # if voted unanimously, climb up and exit the function,
-            if votes.all():            
-                self.outcome = composite
-                return
-
-        # if no composite was accepted, don't climb
-        self.outcome = self.nature.agents[0].current_state
-
-
-
-class DecentralizedMeeting(Meeting):
-    """
-    The decentralized structure:
-    1) agents screen their proposals and propose 1 bistring
-    already having compared it to the status quo and chosen
-    the highest
-    2) meeting host creates composites of their proposals
-    3) agents vote for their own 1 bitstring (kinda redundant),
-    and output is written to self.outcome
-
-    """
-
-    def __init__(self, n:int, p:int, alt:int, prop:int, comp:int, nature:Nature):
-        super().__init__(n=n, p=p, alt=alt, prop=1, comp=1, nature=nature)
-        self.final = True
-
-    def decide(self):
-        """
-        Every agent independently decides to climb up or not.
-        No vote happens, everybody simply picks his own proposal
-        """
-
-        self.outcome = self.composites[0, :]
