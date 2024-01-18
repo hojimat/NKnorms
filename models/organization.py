@@ -1,6 +1,5 @@
 """CEO defintion"""
 from __future__ import annotations
-import enum
 from typing import TYPE_CHECKING
 import numpy as np
 from numpy.typing import NDArray
@@ -18,6 +17,7 @@ class Organization:
 
     It stores performance and synchrony histories obtained from Nature.
     """
+
     def __init__(self, n:int, p:int, nsoc:int, t:int, goals:tuple[float], net:int, deg:int, xi:float, coord:int, nature: Nature):
         # environment and user-input params:
         self.nature = nature
@@ -60,7 +60,7 @@ class Organization:
         for peers, agent in zip(peers_for_each, self.agents):
             agent.peers = [peer for i,peer in zip(peers, self.agents) if i!=0]
 
-    
+
     def calculate_gp_score(self, bstring: NDArray[np.int8]) -> float:
         """
         Uses goal programming to calculate the satisfaction
@@ -79,5 +79,5 @@ class Organization:
         synchrony = nk.similarity(bstring, self.p, self.n, self.nsoc)
         # get the goal programming score
         gp_score = nk.gp_score(np.array([performance, synchrony]), np.array(self.goals), np.array([1,1]))
-        
+
         return gp_score

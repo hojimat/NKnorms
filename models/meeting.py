@@ -2,6 +2,7 @@ from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
 import numpy as np
+import nkpack as nk
 from numpy.typing import NDArray
 if TYPE_CHECKING:
     from .nature import Nature
@@ -37,6 +38,8 @@ class Meeting(ABC):
             proposals.append(proposal)
 
         self.proposals = np.array(proposals, dtype=np.int8)
+        if self.proposals.size == 0:
+            raise nk.InvalidBitstringError("Screening produced zero proposals.")
 
 
     def compose(self) -> None:
@@ -65,6 +68,8 @@ class Meeting(ABC):
         composites = [ self.proposals[np.arange(self.p),index_,:].reshape(-1) for index_ in picked_indices ]
         
         self.composites = np.array(composites, dtype=np.int8)
+        if self.composites.size == 0:
+            raise nk.InvalidBitstringError("Zero composites in the meeting agenda.")
 
     @abstractmethod
     def decide(self):
@@ -72,7 +77,7 @@ class Meeting(ABC):
         A virtual method in which agents come together with the meeting host and decide what to do.
         The decision is made differently depending on the meeting type. This method needs to be
         overloaded in the child classes.
-        """       
+        """
 
     def run(self) -> None:
         """
@@ -98,7 +103,7 @@ class HierarchicalMeeting(Meeting):
         Composites are put to check by organization one by one until
         found one better than status quo
         """
-        
+
         for composite in self.composites:
             # utility of a composite and get current utility
             new_gp_score = self.nature.organization.calculate_gp_score(composite)
@@ -122,8 +127,8 @@ class LateralMeeting(Meeting):
     and output is written to self.outcome
 
     """
-    def __init__(self, n:int, p:int, alt:int, prop:int, comp:int, nature:Nature):
-        super().__init__(n=n, p=p, alt=2, prop=1, comp=1, nature=nature)
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
         self.random = True
 
     def decide(self):
@@ -133,13 +138,14 @@ class LateralMeeting(Meeting):
             # for each agent calculate utility of a composite and get current utility
             new_utilities = np.array([agent.calculate_utility(composite.reshape(1,-1)) for agent in self.nature.agents])
             old_utilities = np.array([agent.current_utility for agent in self.nature.agents])
+            breakpoint()
             # vote True if decides to climb up
             votes = (new_utilities >= old_utilities)
             # if voted unanimously, climb up and exit the function,
             if votes.all():            
                 self.outcome = composite
                 return
-        
+
         # if no composite was accepted, don't climb
         self.outcome = self.nature.agents[0].current_state
 
@@ -158,7 +164,7 @@ class DecentralizedMeeting(Meeting):
     """
 
     def __init__(self, n:int, p:int, alt:int, prop:int, comp:int, nature:Nature):
-        super().__init__(n=n, p=p, alt=2, prop=1, comp=1, nature=nature)
+        super().__init__(n=n, p=p, alt=alt, prop=1, comp=1, nature=nature)
         self.final = True
 
     def decide(self):

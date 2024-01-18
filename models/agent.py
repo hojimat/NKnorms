@@ -123,6 +123,8 @@ class Agent:
 
         # if screening method is random, don't proceed further
         # and just return the random PROPxN proposals
+        # this is different from simply setting ALT=PROP,
+        # because it saves computational time
         if random:
             proposals = alternatives[:prop, start:end]
             return proposals
@@ -138,7 +140,7 @@ class Agent:
         proposals = alternatives[:prop, start:end]
 
         # if final option is on, make final screening decision
-        # here and now: compare best alternative utility to 
+        # here and now: compare best alternative utility to
         # the current utility, and if it is not better,
         # or equal to, simply return the current state
         # Note: reshape(1,-1) converts a 1d vector current_state
