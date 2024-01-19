@@ -1,3 +1,4 @@
+"""Meeting definitions"""
 from __future__ import annotations
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING
@@ -148,11 +149,11 @@ class LateralMeeting(Meeting):
             # for each agent calculate utility of a composite and get current utility
             new_utilities = np.array([agent.calculate_utility(composite.reshape(1,-1)) for agent in self.nature.agents])
             old_utilities = np.array([agent.current_utility for agent in self.nature.agents])
-            breakpoint()
+
             # vote True if decides to climb up
             votes = (new_utilities >= old_utilities)
             # if voted unanimously, climb up and exit the function,
-            if votes.all():            
+            if votes.all():
                 self.outcome = composite
                 return
 
@@ -181,7 +182,7 @@ class HierarchicalMeeting(Meeting):
             new_gp_score = self.nature.organization.calculate_gp_score(composite)
             old_gp_score = self.nature.organization.current_gp_score
 
-            if new_gp_score >= old_gp_score:            
+            if new_gp_score >= old_gp_score:
                 self.outcome = composite
                 return
 

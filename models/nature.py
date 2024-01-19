@@ -1,7 +1,7 @@
-"""Nature definition"""
-from typing import Optional
+"""Nature class definition"""
+from __future__ import annotations
 import numpy as np
-from numpy.typing import NDArray
+import logging
 import nkpack as nk
 from .agent import Agent
 from .organization import Organization
@@ -80,6 +80,8 @@ class Nature:
         self.organization.synchronies[0] = nk.similarity(initial_bstring, self.p, self.n, self.nsoc)
         self.organization.current_gp_score = self.organization.calculate_gp_score(initial_bstring)
 
+        logging.info("Initialized nature.")
+
     def play(self):
         """
         This function contains the main loop of the world. It iterates
@@ -97,7 +99,7 @@ class Nature:
             self.organization.states[t, :] = meeting.outcome
             self.organization.performances[t, :] = self.landscape.phi(meeting.outcome)
             self.organization.synchronies[t] = nk.similarity(meeting.outcome, self.p, self.n, self.nsoc)
-            
+
             # Update current values
             self.organization.current_gp_score = self.organization.calculate_gp_score(meeting.outcome)
             for agent in self.agents:
@@ -107,12 +109,12 @@ class Nature:
             # Agents talk in a network with each other
             for agent in self.agents:
                 agent.publish_social_bits()
-            
 
     def _create_environment(self):
         """Creates the task environment."""
         self.landscape = Landscape(self.p, self.n, self.k, self.c, self.s, self.rho, self.normalize, self.precompute)
         self.landscape.generate()
+        logging.info("Generated landscape.")
 
 
     def _create_players(self):
@@ -120,6 +122,8 @@ class Nature:
         
         params = (self.n, self.p, self.nsoc, self.t, self.goals, self.net, self.degree, self.xi, self.coord, self)
         self.organization = Organization(*params)
+        logging.info("Created organization.")
 
         params = (self.n, self.p, self.nsoc, self.degree, self.tm, self.w, self.wf, self)
         self.agents = [Agent(i, *params) for i in range(self.p)]
+        logging.info("Created agents.")
