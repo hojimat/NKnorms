@@ -147,7 +147,7 @@ class LateralMeeting(Meeting):
 
         for composite in self.composites:
             # for each agent calculate utility of a composite and get current utility
-            new_utilities = np.array([agent.calculate_utility(composite.reshape(1,-1)) for agent in self.nature.agents])
+            new_utilities = np.array([agent.calculate_utility(composite.reshape(1,-1))[0] for agent in self.nature.agents])
             old_utilities = np.array([agent.current_utility for agent in self.nature.agents])
 
             # vote True if decides to climb up
