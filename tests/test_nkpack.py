@@ -55,3 +55,16 @@ def test_calculate_frequency(social):
     multiple = np.array([[1,1], [0,0]])
     freqs = np.apply_along_axis(lambda bstr: nk.calculate_frequency(bstr, social['lookup']), 1, multiple)
     assert (freqs == np.array([0.375, 0.625])).all()
+
+@pytest.mark.parametrize(
+    "goals,score", [
+        ([1,1], -0.45),
+        ([1,0.6], -0.25),
+        ([0.5,0.5], 0),
+        ([0.75,0.80], 0),
+        ([0.75,0.85], -0.05),
+        ])
+def test_gp_score(goals, score):
+    vals = np.array([0.75, 0.80])
+    weights = np.array([1,1])
+    assert nk.gp_score(vals, np.array(goals), weights) == pytest.approx(score)
