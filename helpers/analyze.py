@@ -9,7 +9,6 @@ def create_figure(doc_name, fig_name: str, subfig_names: list, num_columns: int)
     with doc_name.create(Figure(position='!htbp')) as figure:
         figure.add_caption(fig_name)
 
-
         for i,subfig in enumerate(subfig_names):
             with figure.create(SubFigure(position='b', width=NoEscape(rf"{1/num_columns}\linewidth"))) as subfigure:
                 subfigure.add_image(subfig, width=NoEscape(r'\linewidth'))
@@ -29,7 +28,8 @@ def texify(dirs):
         figure_name = ''.join(combination)
         subfigure_names = [f"../fig/{''.join(combination)}{row}{col}.pdf" for row, col in itertools.product(*dirs[-2:])]
 
-        ncol = len(dirs[:-2])
+        ncol = len(dirs[-1])
+
         create_figure(doc, figure_name, subfigure_names, ncol)
         
     # Generate the document

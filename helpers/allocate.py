@@ -40,7 +40,6 @@ def categorize(dirs, patterns):
             for cat in categories:
                 if re.search(patterns[cat], file.name):
                     dest_path /= cat
-
             if dest_path != top_dir:
                 file.rename(dest_path / file.name)
 
@@ -52,6 +51,10 @@ def flatten(dirs):
             if file.is_file():
                 file.rename(root_dir / file.name)
 
+    for path in itertools.product(*dirs[:2]):
+        p = Path(*path)
+        shutil.rmtree(p)
+
 def main():
     """Main function"""
 
@@ -60,9 +63,9 @@ def main():
         structure = data['structure']
         patterns = data['patterns']
 
-    #scaffold(structure)
-    categorize(structure, patterns)
     #flatten(structure)
+    scaffold(structure)
+    categorize(structure, patterns)
 
 
 if __name__=='__main__':

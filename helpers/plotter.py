@@ -29,6 +29,9 @@ def plot(dir_path):
         # plot confidence intervals
         plt.fill_between(list(range(T)),superposition-supererr,superposition+supererr,
                         alpha=0.1)
+
+        #plt.ylim(0.1, 1.0)
+        plt.grid(True)
    
     # close the plot
     plt.legend(loc="lower right",prop={'family':'serif','size':5})

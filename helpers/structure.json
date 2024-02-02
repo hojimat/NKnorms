@@ -1,30 +1,40 @@
 {
     "structure" : [
         ["perf", "sync"],
-        ["kcs300", "kcs222"]
+        ["w10", "w05"],
+        ["apc222", "apc442", "apc224", "apc444"]
     ],
     
     "patterns" : {
         "kcs300": "p.*kcs\\(3,0,0\\).*\\.csv",
+        "kcs212": "p.*kcs\\(2,1,2\\).*\\.csv",
         "kcs222": "p.*kcs\\(2,2,2\\).*\\.csv",
-        "coord0": "p.*coord0.*\\.csv",
-        "coord1": "p.*coord1.*\\.csv",
-        "coord2": "p.*coord2.*\\.csv",
-
-        "kcs300": "p.*kcs\\(3,0,0\\).*\\.csv",
-        "kcs211": "p.*kcs\\(2,1,1\\).*\\.csv",
-        "kcs112": "p.*kcs\\(1,1,2\\).*\\.csv",
-        "kcs222": "p.*kcs\\(2,2,2\\).*\\.csv",
-
-        "w10": "p.*w1\\.0.*\\.csv",
-        "w05": "p.*w0\\.5.*\\.csv",
+        "kcs322": "p.*kcs\\(3,2,2\\).*\\.csv",
+        "kcs333": "p.*kcs\\(3,3,3\\).*\\.csv",
 
         "rho6": "p.*rho0.6.*\\.csv",
         "rho9": "p.*rho0.9.*\\.csv",
         
-        "net1": "p.*net1.*\\.csv",
-        "net2": "p.*net2.*\\.csv",
-        "net3": "p.*net3.*\\.csv",
-        "net4": "p.*net4.*\\.csv"
+        "linex": "p.*net1.*\\.csv",
+        "cyclex": "p.*net2.*\\.csv",
+        "ringx": "p.*net3.*\\.csv",
+        "starx": "p.*net4.*\\.csv",
+
+        "decent": "p.*coord0.*\\.csv",
+        "lateral": "p.*coord1.*\\.csv",
+        "hierar": "p.*coord2.*\\.csv",
+
+        "apc222": "p.*apc\\(2,2,2\\).*\\.csv",
+        "apc422": "p.*apc\\(4,2,2\\).*\\.csv",
+        "apc224": "p.*apc\\(2,2,4\\).*\\.csv",
+        "apc424": "p.*apc\\(4,2,4\\).*\\.csv",
+        "apc442": "p.*apc\\(4,4,2\\).*\\.csv",
+        "apc444": "p.*apc\\(4,4,4\\).*\\.csv",
+
+        "w10": "p.*w1.0.*\\.csv",
+        "w05": "p.*w0.5.*\\.csv",
+
+        "goals1010": "p.*goals\\(1.0,1.0\\).*\\.csv",
+        "goals1006": "p.*goals\\(1.0,0.6\\).*\\.csv"
     }
 }
