@@ -152,12 +152,15 @@ class LateralMeeting(Meeting):
 
             # vote True if decides to climb up
             votes = (new_utilities >= old_utilities)
+
             # if voted unanimously, climb up and exit the function,
             if votes.all():
                 self.outcome = composite
                 return
 
         # if no composite was accepted, don't climb
+        # TODO: pass actual current state (fallback state)
+        # to the meeting from organization
         self.outcome = self.nature.agents[0].current_state
 
 
