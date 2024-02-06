@@ -43,7 +43,8 @@ BLUEPRINT = {
 def run_simulation(parameters, bar_, mc_):
     """A set of instructions for a single iteration"""
     nature = Nature(**parameters)
-    #np.random.seed()
+    # add random seed to ensure that no repetitions happen during multiprocessing
+    np.random.seed() 
     nature.initialize()
     nature.play()
     perfs = nature.organization.performances.mean(axis=1)

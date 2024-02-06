@@ -10,7 +10,7 @@ MC = 20 # number of repetitions
 BLUEPRINT = {
 "p": (5,), # number of agents
 "n": (4,), # number of bits
-"kcs": ((3,0,0), (2,1,2), (2,2,2), (3,2,2), (3,3,3)), # K,C,S parameters
+"kcs": ((2,2,2), (3,2,2), (3,3,3)), # K,C,S parameters
 "t": (500,), # life span of organization
 "rho": (0.9,), # correlation
 
