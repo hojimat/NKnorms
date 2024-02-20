@@ -8,7 +8,7 @@ import nkpack as nk
 ########
 MC = 20 # number of repetitions
 BLUEPRINT = {
-"p": (5,), # number of agents
+"p": (40,), # number of agents
 "n": (4,), # number of bits
 "kcs": ((2,2,2), (3,2,2), (3,3,3)), # K,C,S parameters
 "t": (500,), # life span of organization
@@ -26,8 +26,8 @@ BLUEPRINT = {
 "goals": ((1.0, 1.0),), # goals for incentives and for conformity
 "w": (0.0,), # weight for incentives ; weight for conformity is 1-w
 
-"normalize": (True,), # normalizes by global maximum
-"precompute": (True,), # pre-computes performances for all bitstrings
+"normalize": (False,), # normalizes by global maximum
+"precompute": (False,), # pre-computes performances for all bitstrings
 }
 
 ########

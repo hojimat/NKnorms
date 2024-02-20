@@ -59,13 +59,14 @@ class Meeting(ABC):
                 [[1,1],[0,1]]  --->  [0,0,1,1]
         """
 
-        # pick COMP random integers
-        random_picks = np.random.choice(self.prop**self.p, self.comp)
-        # convert the integers into triplet indices (x,y,z)
-        picked_indices = [np.unravel_index(i, [self.prop]*self.p) for i in random_picks]
-        # composite:
-        composites = [ self.proposals[np.arange(self.p),index_,:].reshape(-1) for index_ in picked_indices ]
-        
+        # for each agent pick index<=PROP. repeat it COMP times.
+        # this returns a COMPxP matrix, where each entry represents the index
+        # of the proposal to pick from the agent i (where is a column number) 
+        picked_indices = np.random.randint(self.prop, size=(self.comp, self.p))
+        # Composite: get i'th proposal N-sized bitstring for each of the picked index,
+        # and flatten the array to concatenate them into a full N*P-sized bitstring
+        composites = [self.proposals[np.arange(self.p), index_, :].flatten() for index_ in picked_indices]
+
         self.composites = np.array(composites, dtype=np.int8)
         if self.composites.size == 0:
             raise nk.InvalidBitstringError("Zero composites in the meeting agenda.")
