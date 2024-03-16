@@ -5,6 +5,7 @@ directory structure and naming patterns.
 Needs accompanying structure.json file.
 """
 
+import sys
 import re
 import shutil
 import json
@@ -58,14 +59,22 @@ def flatten(dirs):
 def main():
     """Main function"""
 
+    if len(sys.argv) < 2:
+        sys.exit("No arguments provided.")
+    action = sys.argv[1]
+
     with open('structure.json', 'r', encoding='utf-8') as file:
         data = json.load(file)  
         structure = data['structure']
         patterns = data['patterns']
 
-    #flatten(structure)
-    scaffold(structure)
-    categorize(structure, patterns)
+    if action == "--flatten":
+        flatten(structure)
+    elif action == "--categorize":
+        scaffold(structure)
+        categorize(structure, patterns)
+    else:
+        sys.exit("Incorrect arguments provided.")
 
 
 if __name__=='__main__':
