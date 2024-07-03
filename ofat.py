@@ -94,14 +94,16 @@ PARAMS_SET = (
 
 
 # variate P
+{"p":5,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":2,"apc":(2,2,4),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #hierar224 p10
 {"p":10,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":2,"apc":(2,2,4),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #hierar224 p10
 {"p":20,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":2,"apc":(2,2,4),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #hierar224 p20
 {"p":50,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":2,"apc":(2,2,4),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #hierar224 p50
 {"p":100,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":2,"apc":(2,2,4),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #hierar224 p100
-{"p":10,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":2,"apc":(2,2,4),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #decent211 p10
-{"p":20,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":2,"apc":(2,2,4),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #decent211 p20
-{"p":50,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":2,"apc":(2,2,4),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #decent211 p50
-{"p":100,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":2,"apc":(2,2,4),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #decent211 p100
+{"p":5,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":0,"apc":(2,1,1),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #decent211 p10
+{"p":10,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":0,"apc":(2,1,1),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #decent211 p10
+{"p":20,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":0,"apc":(2,1,1),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #decent211 p20
+{"p":50,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":0,"apc":(2,1,1),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #decent211 p50
+{"p":100,"n":4,"kcs":(3,0,0),"t":500,"rho":0.9,"nsoc":4,"deg":2,"net":3,"xi":1.0,"tm":50,"coord":0,"apc":(2,1,1),"wf":1.0,"goals":(1.,1.),"w":0.5,"normalize":False,"precompute":False}, #decent211 p100
 
 )
 
