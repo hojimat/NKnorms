@@ -21,10 +21,11 @@ from SALib.analyze import sobol
 from models import Nature
 
 
-NUM_SCEN = 2**14
+NUM_SCEN = 2**10
 PARAMS = {
-    "p": 5, "n": 4, "t": 500, "nsoc": 4, "deg": 2, 
-    "xi": 1.0, "wf": 1.0, "goals": (1.0, 1.0),
+    "p": 5, "n": 4, 
+    "t": 500, "nsoc": 4, "deg": 2, "xi": 1.0,
+    "apc": (2,2,4), "net": 2,
     "normalize": True, "precompute": True
     }
 
@@ -35,8 +36,8 @@ def sample_saltelli(num_scenarios: int, prblm) -> NDArray[np.int8]:
     in the multidimensional space with low discrepancy
     """
     param_sets = sb.sample(prblm, num_scenarios, calc_second_order=True)
-    discrete = param_sets[:,:-2].round()
-    continuous = param_sets[:,-2:].round(1)
+    discrete = param_sets[:,:3].round()
+    continuous = param_sets[:,3:].round(2)
     param_sets = np.hstack((discrete, continuous))
     return param_sets
 
@@ -60,13 +61,13 @@ def get_simrun_outcome(prms):
     """Run a single simulation give params"""
 
     parameters = deepcopy(PARAMS) # deep copy just in case
-    parameters['kcs'] = (int(prms[0]), int(prms[1]), int(prms[2]))
-    parameters['coord'] = int(prms[3])
-    parameters['apc'] = (int(prms[4]), 2, int(prms[5]))
-    parameters['net'] = int(prms[6])
-    parameters['tm'] = int(prms[7])
-    parameters['w'] = prms[8]
-    parameters['rho'] = prms[9]
+    parameters['kcs'] = (3,2,2) if int(prms[0]) else (3,0,0)
+    parameters['coord'] = int(prms[1])
+    parameters['tm'] = int(prms[2])
+    parameters['w'] = prms[3]
+    parameters['wf'] = prms[4]
+    parameters['rho'] = prms[5]
+    parameters['goals'] = (prms[6], prms[7])
     print(parameters)
 
     nature = Nature(**parameters)
@@ -103,9 +104,9 @@ def get_all_outcomes(prblm):
     #    perfs.append(perf)
     #    syncs.append(sync)
     #
-    #    if i > 0 and i % 4 == 0 :
-    #        gc.collect()
-    #
+    #   if i > 0 and i % 4 == 0 :
+    #       gc.collect()
+    
 
     return np.array(perfs), np.array(syncs)
 
@@ -113,9 +114,9 @@ def get_all_outcomes(prblm):
 def main():
     """main function"""   
     problem = {
-        "num_vars": 10,
-        "names": [    "k",   "c",   "s", "coordination", "alt", "comp", "network",     "tm",   "w", "correlation"  ],
-        "bounds": [ [0,3], [0,4], [0,3],          [0,2], [2,4],  [2,4],     [1,4], [10,100], [0,1],       [0.5,1]  ]
+        "num_vars": 8,
+        "names":  [ "external",  "coord",  "tm",      "w",    "wf",   "rho",  "g1",   "g2"  ],
+        "bounds": [ [0,1],       [0,2],    [10,100],  [0,1],  [0,1],  [0,1],  [0,1],  [0,1] ]
     }
 
     perfs, syncs = get_all_outcomes(problem)
