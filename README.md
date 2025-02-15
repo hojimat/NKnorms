@@ -20,6 +20,10 @@ The class diagram below illustrates the actual OOP structure of the codebase.
 
 ![classdiag](./refmaterial/classes_nknorms.png)
 
+### Execution
+You can execute the code by simply running `python main.py`. You can also vary parameters there.
+
+
 ### Performance
 The `_calculate_global_maximum` method is the slowest part of the code, as it runs through every possible bitstring and maps it to a performance. At the moment, `jit` is used for its underlying `nk.calculate_performances` command under _NKPackage_. Also the `main.py` runs a `multiprocessing.Pool` for faster simulations. _CUDA_ is being considered at the moment, but without clear idea how to implement it.
 
