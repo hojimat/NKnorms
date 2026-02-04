@@ -149,7 +149,7 @@ class Agent:
         # of proposals
         
         if final:
-            if np.max(utilities) < self.current_utility:
+            if np.max(utilities) <= self.current_utility:
                 proposals = self.current_state.reshape(1, -1)[:, start:end]
 
         return proposals
